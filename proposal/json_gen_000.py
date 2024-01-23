@@ -111,3 +111,5 @@ output_file_path = os.getcwd() + f'{os.sep}Proposals{os.sep}{data_to_save["Year"
 save_to_json(data_to_save, output_file_path + "input.json")
 shutil.copy(thisfilename, output_file_path)
 print(f"Data saved to {output_file_path}")
+
+# %%
