@@ -1,4 +1,6 @@
+#%%
 import os
+#%%
 from datetime import datetime
 import json
 import shutil
@@ -84,7 +86,7 @@ if __name__ == "__main__":
     # input_file_path = 'input.json'
     # Year = "2024"
     # Semester = "Spring"
-    # Version = "999"
+    # Version = "000"
 
     output_file_path = os.getcwd() + f'{os.sep}Proposals{os.sep}{Year}{semester2code[Semester.lower()]}{os.sep}{Version}{os.sep}'
     with open(output_file_path+ input_file_path, 'r') as input_file:
