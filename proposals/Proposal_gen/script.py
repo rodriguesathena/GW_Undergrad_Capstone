@@ -71,7 +71,7 @@ f"""
 
 ## Contact
 - Author: {data['instructor']}
-- Email: [{data['instructor_email']}](Eamil)
+- Email: [{data['instructor_email']}](Email)
 - GitHub: [{data['github_repo']}](Git Hub rep)
 """
     # .......................................................

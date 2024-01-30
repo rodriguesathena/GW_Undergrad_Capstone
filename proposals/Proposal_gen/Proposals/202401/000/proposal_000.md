@@ -77,5 +77,5 @@
 
 ## Contact
 - Author: Edwin Lo
-- Email: [edwinlo@gwu.edu](Eamil)
+- Email: [edwinlo@gwu.edu](Email)
 - GitHub: [https://github.com/rodriguesathena/24Spr_ARodrigues_Capstone.git](Git Hub rep)
