@@ -19,3 +19,7 @@ onlycountries <- vdemfull[-c(25990:27555), ]
 allwemp <- onlycountries %>% select(country = country_name, abbr = country_text_id, id = country_id, year = year, wpei = v2x_gender, liberties = v2x_gencl, society = v2x_gencs, participation = v2x_genpp)
 wemp100yr <- filter(allwemp, year > 1899, year < 2001)
 ```
+<!-- creating a csv file of cleaned data -->
+```{r}
+write.csv(wemp100yr, 'wemp100yr.csv')
+```
