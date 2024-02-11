@@ -1,0 +1,58 @@
+---
+title: "data_cleaning"
+format: html
+editor: visual
+---
+
+<!-- installing libraries -->
+
+```{r, message=FALSE}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(tidyverse)
+library(vdemdata)
+library(ggplot2)
+```
+<!-- dataset -->
+```{r, message=FALSE}
+vdemfull <- vdemdata::vdem
+map <- map_data("world")
+onlycountries <- vdemfull[-c(25990:27555), ]
+```
+
+<!-- womens empowerment variables -->
+
+```{r}
+allwemp <- onlycountries %>% select(region = country_name, abbr = country_text_id, id = country_id, year = year, wpei = v2x_gender, liberties = v2x_gencl, society = v2x_gencs, participation = v2x_genpp)
+wemp100yr <- filter(allwemp, year > 1899, year < 2001)
+mapwemp <- left_join(map, wemp100yr, by = "region")
+```
+
+<!-- voting rights -->
+
+```{r}
+allvoting <- onlycountries %>% select(region = country_name, abbr = country_text_id, id = country_id, year = year, voting = v2fsuffrage)
+voting100yr <- filter(allvoting, year >1899, year <2001)
+voting100yr <- voting100yr %>% mutate(voting = ifelse(is.na(voting), 0, voting))
+mapvote <- left_join(map, voting100yr, by = "region")
+```
+
+<!-- creating a csv file of cleaned data -->
+
+```{r}
+#write.csv(wemp100yr, 'wemp100yr.csv')
+#write.csv(voting100yr, 'voting100yr.csv')
+```
+
+<!-- suffrage map -->
+```{r}
+vote1900 <- filter(mapvote, year == 1900)
+mapcountry <- ggplot(mapvote, aes(x = long, y = lat, group=group)) 
+mapcountry
+mapvote1900 <- mapcountry + geom_polygon(vote1900, aes(fill = 'voting'), color = "purple")
+mapvote1900
+#vote1950 <- filter(voting100yr, year == 1950)
+#vote2000 <- filter(voting100yr, year == 2000)
+```
+
