@@ -53,14 +53,14 @@ mapvote2000 <- left_join(vote2000, map, by = "region")
 ```
 
 <!-- suffrage map -->
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 #basemap
-ggplot() + geom_map(data = map, map = map, aes(long, lat, map_id = region))
+basemap <- ggplot() + geom_map(data = map, map = map, aes(long, lat, map_id = region))
 #1900 map
-ggplot() + geom_map(data = mapvote1900, map = mapvote1900, aes(long, lat, map_id = region), fill = "purple")
+basemap + geom_map(data = mapvote1900, map = mapvote1900, aes(long, lat, map_id = region), fill = "purple")
 #1950 map
-ggplot() + geom_map(data = mapvote1950, map = mapvote1900, aes(long, lat, map_id = region), fill = "purple")
+basemap + geom_map(data = mapvote1950, map = mapvote1900, aes(long, lat, map_id = region), fill = "purple")
 #2000 map
-ggplot() + geom_map(data = mapvote2000, map = mapvote2000, aes(long, lat, map_id = region), fill = "purple")
+basemap + geom_map(data = mapvote2000, map = mapvote2000, aes(long, lat, map_id = region), fill = "purple")
 ```
 
