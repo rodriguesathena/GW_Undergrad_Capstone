@@ -10,15 +10,20 @@ editor: visual
 library(readr)
 library(dplyr)
 library(tidyr)
+library(maps)
 library(tidyverse)
 library(vdemdata)
 library(ggplot2)
 ```
+
 <!-- dataset -->
+
 ```{r, message=FALSE}
 vdemfull <- vdemdata::vdem
 #vdemfull$year <- as.factor(vdemfull$year)
 map <- map_data("world")
+map$region[map$region == "USA"] = "United States of America"
+map$region[map$region == "UK"] = "United Kingdom"
 onlycountries <- vdemfull[-c(25990:27555), ]
 ```
 
@@ -27,7 +32,7 @@ onlycountries <- vdemfull[-c(25990:27555), ]
 ```{r}
 allwemp <- onlycountries %>% select(region = country_name, abbr = country_text_id, id = country_id, year = year, wpei = v2x_gender, liberties = v2x_gencl, society = v2x_gencs, participation = v2x_genpp)
 wemp100yr <- filter(allwemp, year >= 1900, year <= 2001)
-mapwemp <- left_join(map, wemp100yr, by = "region")
+mapwemp <- left_join(wemp100yr, map, by = "region")
 ```
 
 <!-- voting rights -->
@@ -35,14 +40,14 @@ mapwemp <- left_join(map, wemp100yr, by = "region")
 ```{r}
 allvoting <- onlycountries %>% select(region = country_name, abbr = country_text_id, id = country_id, year = year, voting = v2fsuffrage)
 voting100yr <- filter(allvoting, year >1899, year <2001)
-voting100yr <- voting100yr %>% mutate(voting = ifelse(is.na(voting), 0, voting))
-mapvote <- left_join(voting100yr, map, by = "region")
-vote1900 <- filter(allvoting, year == 1900)
-mapvote1900 <- left_join(vote1900, map, by = "region")
-vote1950 <- filter(allvoting, year == 1950)
-mapvote1950 <- left_join(vote1950, map, by = "region")
-vote2000 <- filter(allvoting, year == 2000)
-mapvote2000 <- left_join(vote2000, map, by = "region")
+#voting100yr <- voting100yr %>% mutate(voting = ifelse(is.na(voting), 0, voting))
+mapvoting100yr <- left_join(voting100yr, map, by = "region")
+vote1900 <- filter(mapvoting100yr, year == 1900)
+#mapvote1900 <- left_join(vote1900, map, by = "region")
+vote1950 <- filter(mapvoting100yr, year == 1950)
+#mapvote1950 <- left_join(vote1950, map, by = "region")
+vote2000 <- filter(mapvoting100yr, year == 2000)
+#mapvote2000 <- left_join(vote2000, map, by = "region")
 ```
 
 <!-- creating a csv file of cleaned data -->
@@ -53,14 +58,14 @@ mapvote2000 <- left_join(vote2000, map, by = "region")
 ```
 
 <!-- suffrage map -->
+
 ```{r, message=FALSE, warning=FALSE}
 #basemap
 basemap <- ggplot() + geom_map(data = map, map = map, aes(long, lat, map_id = region))
 #1900 map
-basemap + geom_map(data = mapvote1900, map = mapvote1900, aes(long, lat, map_id = region), fill = "purple")
+basemap + geom_map(data = vote1900, map = vote1900, aes(long, lat, map_id = region), fill = "purple")
 #1950 map
-basemap + geom_map(data = mapvote1950, map = mapvote1900, aes(long, lat, map_id = region), fill = "purple")
+basemap + geom_map(data = vote1950, map = vote1950, aes(long, lat, map_id = region), fill = "purple")
 #2000 map
-basemap + geom_map(data = mapvote2000, map = mapvote2000, aes(long, lat, map_id = region), fill = "purple")
+basemap + geom_map(data = vote2000, map = vote2000, aes(long, lat, map_id = region), fill = "purple")
 ```
-
