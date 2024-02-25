@@ -43,11 +43,11 @@ voting100yr <- filter(allvoting, year >1899, year <2001)
 #voting100yr <- voting100yr %>% mutate(voting = ifelse(is.na(voting), 0, voting))
 mapvoting100yr <- left_join(voting100yr, map, by = "region")
 vote1900 <- filter(mapvoting100yr, year == 1900)
-#mapvote1900 <- left_join(vote1900, map, by = "region")
+actualvote1900<-filter(vote1900, voting > 0)
 vote1950 <- filter(mapvoting100yr, year == 1950)
-#mapvote1950 <- left_join(vote1950, map, by = "region")
+actualvote1950<-filter(vote1950, voting > 0)
 vote2000 <- filter(mapvoting100yr, year == 2000)
-#mapvote2000 <- left_join(vote2000, map, by = "region")
+actualvote2000<-filter(vote2000, voting > 0)
 ```
 
 <!-- creating a csv file of cleaned data -->
@@ -63,9 +63,9 @@ vote2000 <- filter(mapvoting100yr, year == 2000)
 #basemap
 basemap <- ggplot() + geom_map(data = map, map = map, aes(long, lat, map_id = region))
 #1900 map
-basemap + geom_map(data = vote1900, map = vote1900, aes(long, lat, map_id = region), fill = "purple")
+basemap + geom_map(data = actualvote1900, map = vote1900, aes(long, lat, map_id = region), fill="purple")
 #1950 map
-basemap + geom_map(data = vote1950, map = vote1950, aes(long, lat, map_id = region), fill = "purple")
+basemap + geom_map(data = actualvote1950, map = vote1950, aes(long, lat, map_id = region), fill = "purple")
 #2000 map
-basemap + geom_map(data = vote2000, map = vote2000, aes(long, lat, map_id = region), fill = "purple")
+basemap + geom_map(data = actualvote2000, map = vote2000, aes(long, lat, map_id = region), fill = "purple")
 ```
