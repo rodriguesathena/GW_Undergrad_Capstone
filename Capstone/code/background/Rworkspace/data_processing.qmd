@@ -14,6 +14,7 @@ library(maps)
 library(tidyverse)
 library(vdemdata)
 library(ggplot2)
+library(gganimate)
 ```
 
 <!-- dataset -->
@@ -24,6 +25,8 @@ vdemfull <- vdemdata::vdem
 map <- map_data("world")
 map$region[map$region == "USA"] = "United States of America"
 map$region[map$region == "UK"] = "United Kingdom"
+map$region[map$region == "Czech Republic"] = "Czechia"
+
 onlycountries <- vdemfull[-c(25990:27555), ]
 ```
 
@@ -32,7 +35,7 @@ onlycountries <- vdemfull[-c(25990:27555), ]
 ```{r}
 allwemp <- onlycountries %>% select(region = country_name, abbr = country_text_id, id = country_id, year = year, wpei = v2x_gender, liberties = v2x_gencl, society = v2x_gencs, participation = v2x_genpp)
 wemp100yr <- filter(allwemp, year >= 1900, year <= 2001)
-mapwemp <- left_join(wemp100yr, map, by = "region")
+mapwemp100yr <- left_join(wemp100yr, map, by = "region")
 ```
 
 <!-- voting rights -->
@@ -40,14 +43,7 @@ mapwemp <- left_join(wemp100yr, map, by = "region")
 ```{r}
 allvoting <- onlycountries %>% select(region = country_name, abbr = country_text_id, id = country_id, year = year, voting = v2fsuffrage)
 voting100yr <- filter(allvoting, year >1899, year <2001)
-#voting100yr <- voting100yr %>% mutate(voting = ifelse(is.na(voting), 0, voting))
 mapvoting100yr <- left_join(voting100yr, map, by = "region")
-vote1900 <- filter(mapvoting100yr, year == 1900)
-actualvote1900<-filter(vote1900, voting > 0)
-vote1950 <- filter(mapvoting100yr, year == 1950)
-actualvote1950<-filter(vote1950, voting > 0)
-vote2000 <- filter(mapvoting100yr, year == 2000)
-actualvote2000<-filter(vote2000, voting > 0)
 ```
 
 <!-- creating a csv file of cleaned data -->
@@ -57,15 +53,64 @@ actualvote2000<-filter(vote2000, voting > 0)
 #write.csv(voting100yr, 'voting100yr.csv')
 ```
 
-<!-- suffrage map -->
+<!-- suffrage maps -->
 
 ```{r, message=FALSE, warning=FALSE}
+vote1900 <- filter(mapvoting100yr, year == 1900)
+actualvote1900<-filter(vote1900, voting > 0)
+vote1936 <- filter(mapvoting100yr, year == 1925)
+actualvote1925<-filter(vote1925, voting > 0)
+vote1950 <- filter(mapvoting100yr, year == 1950)
+actualvote1950<-filter(vote1950, voting > 0)
+vote1969 <- filter(mapvoting100yr, year == 1975)
+actualvote1975<-filter(vote1975, voting > 0)
+vote2000 <- filter(mapvoting100yr, year == 2000)
+actualvote2000<-filter(vote2000, voting > 0)
 #basemap
 basemap <- ggplot() + geom_map(data = map, map = map, aes(long, lat, map_id = region))
 #1900 map
 basemap + geom_map(data = actualvote1900, map = vote1900, aes(long, lat, map_id = region), fill="purple")
+#1925 map
+basemap + geom_map(data = actualvote1925, map = vote1925, aes(long, lat, map_id = region), fill="purple")
 #1950 map
 basemap + geom_map(data = actualvote1950, map = vote1950, aes(long, lat, map_id = region), fill = "purple")
+#1975 map
+basemap + geom_map(data = actualvote1975, map = vote1975, aes(long, lat, map_id = region), fill="purple")
 #2000 map
 basemap + geom_map(data = actualvote2000, map = vote2000, aes(long, lat, map_id = region), fill = "purple")
 ```
+
+<!-- wpei maps -->
+
+```{r message=False, warning=FALSE}
+wemp1900 <- filter(mapwemp100yr, year == 1900)
+wemp1925 <- filter(mapwemp100yr, year == 1925)
+wemp1950 <- filter(mapwemp100yr, year == 1950)
+wemp1975 <- filter(mapwemp100yr, year == 1975)
+wemp2000 <- filter(mapwemp100yr, year == 2000)
+#basemap
+basemap <- ggplot() + geom_map(data = map, map = map, aes(long, lat, map_id = region)) + scale_fill_gradient(low = "yellow", high = "purple")
+#1900 map
+basemap + geom_map(data = wemp1900, map = wemp1900, aes(fill = wpei, map_id = region))
+#1925 map
+basemap + geom_map(data = wemp1925, map = wemp1925, aes(fill = wpei, map_id = region))
+#1950 map
+basemap + geom_map(data = wemp1950, map = wemp1950, aes(fill = wpei, map_id = region))
+#1975 map
+basemap + geom_map(data = wemp1975, map = wemp1975, aes(fill = wpei, map_id = region))
+#2000 map
+basemap + geom_map(data = wemp2000, map = wemp2000, aes(fill = wpei, map_id = region))
+```
+
+<!-- category breakup -->
+```{r message=FALSE}
+quantiles <- quantile(wemp100yr$wpei, probs = c(1/3, 2/3), na.rm = TRUE)
+quantiles
+#emerging <- wpei < 0.238
+#developing <- 0.238 < wpei < 0.474
+#established <- wpei > 0.474
+
+```
+
+
+
