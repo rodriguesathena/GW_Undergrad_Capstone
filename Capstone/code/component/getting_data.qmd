@@ -1,0 +1,53 @@
+---
+title: "getting_data"
+format: html
+editor: visual
+---
+
+<!-- installing libraries -->
+
+```{r, message=FALSE}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(maps)
+library(tidyverse)
+library(vdemdata)
+library(ggplot2)
+library(gganimate)
+```
+
+<!-- dataset -->
+
+```{r, message=FALSE}
+vdemfull <- vdemdata::vdem
+#vdemfull$year <- as.factor(vdemfull$year)
+onlycountries <- vdemfull[-c(25990:27555), ]
+
+map <- map_data("world")
+map$region[map$region == "USA"] = "United States of America"
+map$region[map$region == "UK"] = "United Kingdom"
+map$region[map$region == "Czech Republic"] = "Czechia"
+```
+
+<!-- womens empowerment variables -->
+
+```{r}
+allwemp <- onlycountries %>% select(region = country_name, abbr = country_text_id, id = country_id, year = year, wpei = v2x_gender, liberties = v2x_gencl, society = v2x_gencs, participation = v2x_genpp)
+wemp100yr <- filter(allwemp, year >= 1900, year <= 2001)
+```
+
+<!-- voting rights -->
+
+```{r}
+allvoting <- onlycountries %>% select(region = country_name, abbr = country_text_id, id = country_id, year = year, voting = v2fsuffrage)
+voting100yr <- filter(allvoting, year >1899, year <2001)
+```
+
+
+<!-- creating a csv file of cleaned data -->
+
+```{r}
+#write.csv(wemp100yr, 'wemp100yr.csv')
+#write.csv(voting100yr, 'voting100yr.csv')
+```

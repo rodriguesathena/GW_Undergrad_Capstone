@@ -17,17 +17,35 @@ library(ggplot2)
 library(gganimate)
 ```
 
+---
+title: "getting_data"
+format: html
+editor: visual
+---
+
+<!-- installing libraries -->
+
+```{r, message=FALSE}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(maps)
+library(tidyverse)
+library(vdemdata)
+library(ggplot2)
+library(gganimate)
+```
+
 <!-- dataset -->
 
 ```{r, message=FALSE}
 vdemfull <- vdemdata::vdem
-#vdemfull$year <- as.factor(vdemfull$year)
+onlycountries <- vdemfull[-c(25990:27555), ]
+
 map <- map_data("world")
 map$region[map$region == "USA"] = "United States of America"
 map$region[map$region == "UK"] = "United Kingdom"
 map$region[map$region == "Czech Republic"] = "Czechia"
-
-onlycountries <- vdemfull[-c(25990:27555), ]
 ```
 
 <!-- womens empowerment variables -->
@@ -35,7 +53,6 @@ onlycountries <- vdemfull[-c(25990:27555), ]
 ```{r}
 allwemp <- onlycountries %>% select(region = country_name, abbr = country_text_id, id = country_id, year = year, wpei = v2x_gender, liberties = v2x_gencl, society = v2x_gencs, participation = v2x_genpp)
 wemp100yr <- filter(allwemp, year >= 1900, year <= 2001)
-mapwemp100yr <- left_join(wemp100yr, map, by = "region")
 ```
 
 <!-- voting rights -->
@@ -43,8 +60,8 @@ mapwemp100yr <- left_join(wemp100yr, map, by = "region")
 ```{r}
 allvoting <- onlycountries %>% select(region = country_name, abbr = country_text_id, id = country_id, year = year, voting = v2fsuffrage)
 voting100yr <- filter(allvoting, year >1899, year <2001)
-mapvoting100yr <- left_join(voting100yr, map, by = "region")
 ```
+
 
 <!-- creating a csv file of cleaned data -->
 
@@ -58,11 +75,11 @@ mapvoting100yr <- left_join(voting100yr, map, by = "region")
 ```{r, message=FALSE, warning=FALSE}
 vote1900 <- filter(mapvoting100yr, year == 1900)
 actualvote1900<-filter(vote1900, voting > 0)
-vote1936 <- filter(mapvoting100yr, year == 1925)
+vote1925 <- filter(mapvoting100yr, year == 1925)
 actualvote1925<-filter(vote1925, voting > 0)
 vote1950 <- filter(mapvoting100yr, year == 1950)
 actualvote1950<-filter(vote1950, voting > 0)
-vote1969 <- filter(mapvoting100yr, year == 1975)
+vote1975 <- filter(mapvoting100yr, year == 1975)
 actualvote1975<-filter(vote1975, voting > 0)
 vote2000 <- filter(mapvoting100yr, year == 2000)
 actualvote2000<-filter(vote2000, voting > 0)
@@ -110,5 +127,7 @@ quantiles
 #emerging <- wpei < 0.238
 #developing <- 0.238 < wpei < 0.474
 #established <- wpei > 0.474
-
+wemp100yr$category<-as.factor(ifelse(wemp100yr$wpei<0.238, 'emerging',
+                     ifelse(wemp100yr$wpei>0.238&wemp100yr$wpei<0.474, 'developing',
+                     ifelse(wemp100yr$wpei>0.474, 'established'))))
 ```
