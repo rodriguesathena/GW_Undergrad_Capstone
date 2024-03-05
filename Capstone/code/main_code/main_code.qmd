@@ -3,26 +3,6 @@ title: "main_code"
 format: html
 editor: visual
 ---
-
-<!-- installing libraries -->
-
-```{r, message=FALSE}
-library(readr)
-library(dplyr)
-library(tidyr)
-library(maps)
-library(tidyverse)
-library(vdemdata)
-library(ggplot2)
-library(gganimate)
-```
-
----
-title: "getting_data"
-format: html
-editor: visual
----
-
 <!-- installing libraries -->
 
 ```{r, message=FALSE}
@@ -53,6 +33,7 @@ map$region[map$region == "Czech Republic"] = "Czechia"
 ```{r}
 allwemp <- onlycountries %>% select(region = country_name, abbr = country_text_id, id = country_id, year = year, wpei = v2x_gender, liberties = v2x_gencl, society = v2x_gencs, participation = v2x_genpp)
 wemp100yr <- filter(allwemp, year >= 1900, year <= 2001)
+mapwemp100yr <- left_join(wemp100yr, map, by = "region")
 ```
 
 <!-- voting rights -->
@@ -60,6 +41,7 @@ wemp100yr <- filter(allwemp, year >= 1900, year <= 2001)
 ```{r}
 allvoting <- onlycountries %>% select(region = country_name, abbr = country_text_id, id = country_id, year = year, voting = v2fsuffrage)
 voting100yr <- filter(allvoting, year >1899, year <2001)
+mapvoting100yr <- left_join(voting100yr, map, by = "region")
 ```
 
 
@@ -120,14 +102,19 @@ basemap + geom_map(data = wemp2000, map = wemp2000, aes(fill = wpei, map_id = re
 ```
 
 <!-- category breakup -->
-
-```{r message=FALSE}
+```{r}
 quantiles <- quantile(wemp100yr$wpei, probs = c(1/3, 2/3), na.rm = TRUE)
 quantiles
 #emerging <- wpei < 0.238
+
 #developing <- 0.238 < wpei < 0.474
+
 #established <- wpei > 0.474
+
 wemp100yr$category<-as.factor(ifelse(wemp100yr$wpei<0.238, 'emerging',
+
                      ifelse(wemp100yr$wpei>0.238&wemp100yr$wpei<0.474, 'developing',
+
                      ifelse(wemp100yr$wpei>0.474, 'established'))))
 ```
+
