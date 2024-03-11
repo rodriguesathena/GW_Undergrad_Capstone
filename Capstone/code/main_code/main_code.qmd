@@ -88,7 +88,7 @@ wemp1950 <- filter(mapwemp100yr, year == 1950)
 wemp1975 <- filter(mapwemp100yr, year == 1975)
 wemp2000 <- filter(mapwemp100yr, year == 2000)
 #basemap
-basemap <- ggplot() + geom_map(data = map, map = map, aes(long, lat, map_id = region)) + scale_fill_gradient(low = "yellow", high = "purple")
+basemap <- ggplot() + geom_map(data = map, map = map, aes(long, lat, map_id = region)) + scale_fill_gradient(low = "yellow", high = "pink")
 #1900 map
 basemap + geom_map(data = wemp1900, map = wemp1900, aes(fill = wpei, map_id = region))
 #1925 map
@@ -105,16 +105,34 @@ basemap + geom_map(data = wemp2000, map = wemp2000, aes(fill = wpei, map_id = re
 ```{r}
 quantiles <- quantile(wemp100yr$wpei, probs = c(1/3, 2/3), na.rm = TRUE)
 quantiles
-#emerging <- wpei < 0.238
-
-#developing <- 0.238 < wpei < 0.474
-
-#established <- wpei > 0.474
-
-wemp100yr$category<-as.factor(ifelse(wemp100yr$wpei<0.238, 'emerging',
-
-                     ifelse(wemp100yr$wpei>0.238&wemp100yr$wpei<0.474, 'developing',
-
-                     ifelse(wemp100yr$wpei>0.474, 'established'))))
+mapwemp100yr[, 'category'] = NA 
+mapwemp100yr[, 'categoryvalue'] = NA 
+#emerging wpei < 0.238 developing 0.238 < wpei < 0.474 established wpei > 0.474
+mapwemp100yr$category <- as.factor(ifelse(mapwemp100yr$wpei<0.238, 'emerging',
+                                  ifelse(mapwemp100yr$wpei>0.238 & mapwemp100yr$wpei<0.474, 'developing', 
+                                  ifelse(mapwemp100yr$wpei>0.474, 'established', 'none')))) 
+mapwemp100yr$categoryvalue <- as.numeric(ifelse(mapwemp100yr$wpei<0.238, 1, 
+                                         ifelse(mapwemp100yr$wpei>0.238 & mapwemp100yr$wpei<0.474, 2, 
+                                         ifelse(mapwemp100yr$wpei>0.474, 3, 0))))
+```
+<!-- category maps -->
+```{r message=FALSE, warning=FALSE}
+catwemp1900 <- filter(mapwemp100yr, year == 1900)
+catwemp1925 <- filter(mapwemp100yr, year == 1925)
+catwemp1950 <- filter(mapwemp100yr, year == 1950)
+catwemp1975 <- filter(mapwemp100yr, year == 1975)
+catwemp2000 <- filter(mapwemp100yr, year == 2000)
+#basemap
+basemap <- ggplot() + geom_map(data = map, map = map, aes(long, lat, map_id = region)) + scale_fill_gradient(low = "yellow", high = "pink")
+#1900 map
+basemap + geom_map(data = catwemp1900, map = catwemp1900, aes(fill = categoryvalue, map_id = region))
+#1925 map
+basemap + geom_map(data = catwemp1925, map = catwemp1925, aes(fill = categoryvalue, map_id = region))
+#1950 map
+basemap + geom_map(data = catwemp1950, map = catwemp1950, aes(fill = categoryvalue, map_id = region))
+#1975 map
+basemap + geom_map(data = catwemp1975, map = catwemp1975, aes(fill = categoryvalue, map_id = region))
+#2000 map
+basemap + geom_map(data = catwemp2000, map = catwemp2000, aes(fill = categoryvalue, map_id = region))
 ```
 
