@@ -103,17 +103,22 @@ basemap + geom_map(data = wemp2000, map = wemp2000, aes(fill = wpei, map_id = re
 
 <!-- category breakup -->
 ```{r}
-quantiles <- quantile(wemp100yr$wpei, probs = c(1/3, 2/3), na.rm = TRUE)
+quantiles <- quantile(wemp100yr$wpei, probs = c(1/4, 2/4, 3/4), na.rm = TRUE)
 quantiles
 mapwemp100yr[, 'category'] = NA 
-mapwemp100yr[, 'categoryvalue'] = NA 
-#emerging wpei < 0.238 developing 0.238 < wpei < 0.474 established wpei > 0.474
-mapwemp100yr$category <- as.factor(ifelse(mapwemp100yr$wpei<0.238, 'emerging',
-                                  ifelse(mapwemp100yr$wpei>0.238 & mapwemp100yr$wpei<0.474, 'developing', 
-                                  ifelse(mapwemp100yr$wpei>0.474, 'established', 'none')))) 
-mapwemp100yr$categoryvalue <- as.numeric(ifelse(mapwemp100yr$wpei<0.238, 1, 
-                                         ifelse(mapwemp100yr$wpei>0.238 & mapwemp100yr$wpei<0.474, 2, 
-                                         ifelse(mapwemp100yr$wpei>0.474, 3, 0))))
+mapwemp100yr[, 'categoryvalue'] = NA
+
+#categories: nascent wpei < 0.188 emerging 0.188 < wpei < 0.336 developing  0.336 < wpei < 0.546 established wpei > 0.546
+mapwemp100yr$category <- as.factor(ifelse(mapwemp100yr$wpei<0.188, 'nascent',
+                                  ifelse(mapwemp100yr$wpei>0.188 & mapwemp100yr$wpei<0.336, 'emerging',
+                                    ifelse(mapwemp100yr$wpei>0.336 & mapwemp100yr$wpei<0.546, 'developing',
+                                    ifelse(mapwemp100yr$wpei>0.546, 'established', 'none')))))
+mapwemp100yr$categoryvalue <- as.numeric(ifelse(mapwemp100yr$wpei<0.188, 1,
+                                    ifelse(mapwemp100yr$wpei>0.188 & mapwemp100yr$wpei<0.336, 2,
+                                    ifelse(mapwemp100yr$wpei>0.336 & mapwemp100yr$wpei<0.546, 3,
+                                    ifelse(mapwemp100yr$wpei>0.546, 4, 0)))))
+summary(mapwemp100yr)
+
 ```
 <!-- category maps -->
 ```{r message=FALSE, warning=FALSE}
@@ -123,7 +128,7 @@ catwemp1950 <- filter(mapwemp100yr, year == 1950)
 catwemp1975 <- filter(mapwemp100yr, year == 1975)
 catwemp2000 <- filter(mapwemp100yr, year == 2000)
 #basemap
-basemap <- ggplot() + geom_map(data = map, map = map, aes(long, lat, map_id = region)) + scale_fill_gradient(low = "yellow", high = "pink")
+basemap <- ggplot() + geom_map(data = map, map = map, aes(long, lat, map_id = region)) + scale_fill_gradient( low = "yellow", high = "red")
 #1900 map
 basemap + geom_map(data = catwemp1900, map = catwemp1900, aes(fill = categoryvalue, map_id = region))
 #1925 map
@@ -134,5 +139,23 @@ basemap + geom_map(data = catwemp1950, map = catwemp1950, aes(fill = categoryval
 basemap + geom_map(data = catwemp1975, map = catwemp1975, aes(fill = categoryvalue, map_id = region))
 #2000 map
 basemap + geom_map(data = catwemp2000, map = catwemp2000, aes(fill = categoryvalue, map_id = region))
+```
+
+<!-- finding transition periods -->
+```{r message=FALSE, warning=FALSE}
+wemp100yr[, 'category'] = NA 
+wemp100yr[, 'categoryvalue'] = NA
+
+#categories: nascent wpei < 0.188 emerging 0.188 < wpei < 0.336 developing  0.336 < wpei < 0.546 established wpei > 0.546
+wemp100yr$category <- as.factor(ifelse(wemp100yr$wpei<0.188, 'nascent',
+                                  ifelse(wemp100yr$wpei>0.188 & wemp100yr$wpei<0.336, 'emerging',
+                                    ifelse(wemp100yr$wpei>0.336 & wemp100yr$wpei<0.546, 'developing',
+                                    ifelse(wemp100yr$wpei>0.546, 'established', 'none')))))
+wemp1900s <- filter(wemp100yr, year < 1910)
+summary(wemp1900s)
+wemp1910s <- filter(wemp100yr, year < 1920)
+summary(wemp1910s)
+summary(wemp100yr$category)
+#potential periods: nascent 1900 - 1934  emerging 1934 - 1957 developing 1957 - 1973 established 1973 - 2000
 ```
 
