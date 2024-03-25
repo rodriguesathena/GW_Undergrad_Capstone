@@ -10,6 +10,7 @@ library(readr)
 library(dplyr)
 library(tidyr)
 library(maps)
+library(plotly )
 library(tidyverse)
 library(vdemdata)
 library(ggplot2)
@@ -32,7 +33,7 @@ map$region[map$region == "Czech Republic"] = "Czechia"
 
 ```{r}
 allwemp <- onlycountries %>% select(region = country_name, abbr = country_text_id, id = country_id, year = year, wpei = v2x_gender, liberties = v2x_gencl, society = v2x_gencs, participation = v2x_genpp)
-wemp100yr <- filter(allwemp, year >= 1900, year <= 2001)
+wemp100yr <- filter(allwemp, year >= 1900, year <= 2000)
 mapwemp100yr <- left_join(wemp100yr, map, by = "region")
 ```
 
@@ -111,13 +112,13 @@ mapwemp100yr[, 'categoryvalue'] = NA
 #categories: nascent wpei < 0.188 emerging 0.188 < wpei < 0.336 developing  0.336 < wpei < 0.546 established wpei > 0.546
 mapwemp100yr$category <- as.factor(ifelse(mapwemp100yr$wpei<0.188, 'nascent',
                                   ifelse(mapwemp100yr$wpei>0.188 & mapwemp100yr$wpei<0.336, 'emerging',
-                                    ifelse(mapwemp100yr$wpei>0.336 & mapwemp100yr$wpei<0.546, 'developing',
+                                    ifelse(mapwemp100yr$wpei>0.188 & mapwemp100yr$wpei<0.546, 'developing',
                                     ifelse(mapwemp100yr$wpei>0.546, 'established', 'none')))))
 mapwemp100yr$categoryvalue <- as.numeric(ifelse(mapwemp100yr$wpei<0.188, 1,
                                     ifelse(mapwemp100yr$wpei>0.188 & mapwemp100yr$wpei<0.336, 2,
-                                    ifelse(mapwemp100yr$wpei>0.336 & mapwemp100yr$wpei<0.546, 3,
+                                    ifelse(mapwemp100yr$wpei>0.188 & mapwemp100yr$wpei<0.546, 3,
                                     ifelse(mapwemp100yr$wpei>0.546, 4, 0)))))
-summary(mapwemp100yr)
+summary(wemp100yr)
 
 ```
 <!-- category maps -->
@@ -151,11 +152,33 @@ wemp100yr$category <- as.factor(ifelse(wemp100yr$wpei<0.188, 'nascent',
                                   ifelse(wemp100yr$wpei>0.188 & wemp100yr$wpei<0.336, 'emerging',
                                     ifelse(wemp100yr$wpei>0.336 & wemp100yr$wpei<0.546, 'developing',
                                     ifelse(wemp100yr$wpei>0.546, 'established', 'none')))))
-wemp1900s <- filter(wemp100yr, year < 1910)
-summary(wemp1900s)
-wemp1910s <- filter(wemp100yr, year < 1920)
-summary(wemp1910s)
-summary(wemp100yr$category)
-#potential periods: nascent 1900 - 1934  emerging 1934 - 1957 developing 1957 - 1973 established 1973 - 2000
+#grouping for analysis
+grouped_wemp <- wemp100yr %>%
+  group_by(year, category) %>%
+  summarise(count = n(), .groups = 'drop')
+grouped_wemp <- drop_na(grouped_wemp)
+#visualizations to determine transitions
+grouppoint <- ggplot(grouped_wemp) + geom_point(aes(x = year, y = count, color = category)) 
+groupbar <- ggplot(grouped_wemp, aes(x = year, y = count, fill = category)) + geom_bar(stat='identity', position=position_dodge()) #+ facet_wrap(.~category) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+groupbar_interactive <- ggplotly(groupbar)
+grouppoint_interactive <- ggplotly(grouppoint)
+groupbar_interactive
+grouppoint_interactive
+#potential periods: nascent 1900 - 1954   developing - 1955 - 1978     established 1979 - 2000
+```
+<!-- mapping the transition periods -->
+```{r}
+transitions <- filter(allwemp, year >= 1900, year <= 2000)
+transitions[, 'category'] = NA 
+transitions[, 'categoryvalue'] = NA
+
+transitions$category <- as.factor(ifelse(transitions$year>1899 & transitions$year<1954, 'nascent',
+                                  ifelse(transitions$year>1955 & transitions$year<1978, 'developing',
+                                    ifelse(transitions$year>1979, 'established', 'none'))))
+#nascentgraph
+nascentgraph <- ggplot(nascent, aes(x = year, y = wpei, fill = wpei)) + geom_bar(stat='identity', position=position_dodge())
+developinggraph <- ggplot(developing, aes(x = year, y = wpei, fill = wpei)) + geom_bar(stat='identity', position=position_dodge())
+establishedgraph <- ggplot(established, aes(x = year, y = wpei, fill = wpei)) + geom_bar(stat='identity', position=position_dodge())
+
 ```
 
