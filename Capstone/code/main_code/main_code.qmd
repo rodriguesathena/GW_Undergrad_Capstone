@@ -14,7 +14,7 @@ library(plotly )
 library(tidyverse)
 library(vdemdata)
 library(ggplot2)
-library(gganimate)
+library(echarts4r)
 ```
 
 <!-- loading dataset -->
@@ -36,7 +36,6 @@ allwemp <- onlycountries %>% select(region = country_name, abbr = country_text_i
 wemp100yr <- filter(allwemp, year >= 1900, year <= 2000)
 mapwemp100yr <- left_join(wemp100yr, map, by = "region")
 ```
-
 <!-- voting rights -->
 
 ```{r}
@@ -44,7 +43,6 @@ allvoting <- onlycountries %>% select(region = country_name, abbr = country_text
 voting100yr <- filter(allvoting, year >1899, year <2001)
 mapvoting100yr <- left_join(voting100yr, map, by = "region")
 ```
-
 
 <!-- creating a csv file of cleaned data -->
 
@@ -55,30 +53,29 @@ mapvoting100yr <- left_join(voting100yr, map, by = "region")
 
 <!-- category breakup -->
 ```{r}
-quantiles <- quantile(wemp100yr$wpei, probs = c(1/4, 2/4, 3/4), na.rm = TRUE)
-quantiles
-mapwemp100yr[, 'category'] = NA 
-mapwemp100yr[, 'categoryvalue'] = NA
-
-#categories: nascent wpei < 0.188 emerging 0.188 < wpei < 0.336 developing  0.336 < wpei < 0.546 established wpei > 0.546
-mapwemp100yr$category <- as.factor(ifelse(mapwemp100yr$wpei<0.188, 'nascent',
-                                  ifelse(mapwemp100yr$wpei>0.188 & mapwemp100yr$wpei<0.336, 'emerging',
-                                    ifelse(mapwemp100yr$wpei>0.188 & mapwemp100yr$wpei<0.546, 'developing',
-                                    ifelse(mapwemp100yr$wpei>0.546, 'established', 'none')))))
-mapwemp100yr$categoryvalue <- as.numeric(ifelse(mapwemp100yr$wpei<0.188, 1,
-                                    ifelse(mapwemp100yr$wpei>0.188 & mapwemp100yr$wpei<0.336, 2,
-                                    ifelse(mapwemp100yr$wpei>0.188 & mapwemp100yr$wpei<0.546, 3,
-                                    ifelse(mapwemp100yr$wpei>0.546, 4, 0)))))
+wemp100yr[, 'category'] = NA 
+wemp100yr[, 'categoryvalue'] = NA
+# categories nascent: wpei<0.188; emerging: 0.188<wpei<0.336; developing: 0.336<wpei<0.546    established: wpei>.546
+wemp100yr$category <- as.factor(ifelse(wemp100yr$wpei<0.188, 'nascent',
+                                  ifelse(wemp100yr$wpei>0.188 & wemp100yr$wpei<0.336, 'emerging',
+                                    ifelse(wemp100yr$wpei>0.336 & wemp100yr$wpei<0.546, 'developing',
+                                    ifelse(wemp100yr$wpei>0.546, 'established', 'none')))))
+wemp100yr$categoryvalue <- as.numeric(ifelse(wemp100yr$wpei<0.188, 1,
+                                    ifelse(wemp100yr$wpei>0.188 & wemp100yr$wpei<0.336, 2,
+                                    ifelse(wemp100yr$wpei>0.336 & wemp100yr$wpei<0.546, 3,
+                                    ifelse(wemp100yr$wpei>0.546, 4, 0)))))
 summary(wemp100yr)
+
+wempmap <- left_join(wemp100yr, map, by = "region")
 
 ```
 <!-- category maps -->
 ```{r message=FALSE, warning=FALSE}
-catwemp1900 <- filter(mapwemp100yr, year == 1900)
-catwemp1925 <- filter(mapwemp100yr, year == 1925)
-catwemp1950 <- filter(mapwemp100yr, year == 1950)
-catwemp1975 <- filter(mapwemp100yr, year == 1975)
-catwemp2000 <- filter(mapwemp100yr, year == 2000)
+catwemp1900 <- filter(wempmap, year == 1900)
+catwemp1925 <- filter(wempmap, year == 1925)
+catwemp1950 <- filter(wempmap, year == 1950)
+catwemp1975 <- filter(wempmap, year == 1975)
+catwemp2000 <- filter(wempmap, year == 2000)
 #basemap
 basemap <- ggplot() + geom_map(data = map, map = map, aes(long, lat, map_id = region)) + scale_fill_gradient( low = "yellow", high = "red")
 #1900 map
@@ -95,14 +92,6 @@ basemap + geom_map(data = catwemp2000, map = catwemp2000, aes(fill = categoryval
 
 <!-- finding transition periods -->
 ```{r message=FALSE, warning=FALSE}
-wemp100yr[, 'category'] = NA 
-wemp100yr[, 'categoryvalue'] = NA
-
-#categories: nascent wpei < 0.188 emerging 0.188 < wpei < 0.336 developing  0.336 < wpei < 0.546 established wpei > 0.546
-wemp100yr$category <- as.factor(ifelse(wemp100yr$wpei<0.188, 'nascent',
-                                  ifelse(wemp100yr$wpei>0.188 & wemp100yr$wpei<0.336, 'emerging',
-                                    ifelse(wemp100yr$wpei>0.336 & wemp100yr$wpei<0.546, 'developing',
-                                    ifelse(wemp100yr$wpei>0.546, 'established', 'none')))))
 #grouping for analysis
 grouped_wemp <- wemp100yr %>%
   group_by(year, category) %>%
@@ -115,23 +104,51 @@ groupbar_interactive <- ggplotly(groupbar)
 grouppoint_interactive <- ggplotly(grouppoint)
 groupbar_interactive
 grouppoint_interactive
-#potential periods: nascent 1900 - 1954   developing - 1955 - 1978     established 1979 - 2000
+#periods: nascent 1900 - 1955   developing - 1956 - 1978     established 1979 - 2000
 ```
-<!-- mapping the transition periods -->
+<!-- adding transition periods to dataset-->
 ```{r}
-transitions <- filter(allwemp, year >= 1900, year <= 2000)
-transitions[, 'category'] = NA 
-transitions[, 'categoryvalue'] = NA
+periods <- filter(allwemp, year >= 1900, year <= 2000)
+periods[, 'category'] = NA 
+periods[, 'categoryvalue'] = NA
 
-transitions$category <- as.factor(ifelse(transitions$year>=1900 & transitions$year<=1954, 'nascent',
-                                  ifelse(transitions$year>=1955 & transitions$year<=1978, 'developing',
-                                    ifelse(transitions$year>=1979, 'established', 'none'))))
-transitions$categoryvalue <- as.numeric(ifelse(transitions$year>=1900 & transitions$year<=1954, 1,
-                                  ifelse(transitions$year>=1955 & transitions$year<=1978, 2,
-                                    ifelse(transitions$year>=1979, 3, 0))))
-basemap <- ggplot() + geom_map(data = map, map = map, aes(long, lat, map_id = region)) + scale_fill_gradient( low = "yellow", high = "red")
-transitionmap <- basemap + geom_map(data = catwemp1900, map = catwemp1900, aes(fill = categoryvalue, map_id = region))
-transint <- ggplotly(transition)
-transint
+periods$category <- as.factor(ifelse(periods$year>=1900 & periods$year<=1955, 'nascent',
+                                  ifelse(periods$year>=1956 & periods$year<=1978, 'developing',
+                                    ifelse(periods$year>=1979, 'established', 'none'))))
+periods$categoryvalue <- as.numeric(ifelse(periods$year>=1900 & periods$year<=1954, 1,
+                                  ifelse(periods$year>=1955 & periods$year<=1978, 2,
+                                    ifelse(periods$year>=1979, 3, 0))))
+```
+<!-- voting rights and transition periods -->
+```{r}
+combined <- voting100yr
+combined[, 'category'] = NA 
+combined[, 'categoryvalue'] = NA
+combined$category <- wemp100yr$category
+combined$categoryvalue <- wemp100yr$categoryvalue
+combined$voting <- ifelse(combined$voting > '0', 1, 0)
+lastvote <- combined %>%
+  arrange(region, year) %>%
+  group_by(region) %>%
+  mutate(change = voting != lag(voting, default = voting[1])) %>%
+  filter(change) %>%
+  mutate(pervious = lag(voting, default = voting[1])) %>%
+  #filter(voting == 1 & previous == 0) %>%
+  select(region, year, voting, category, categoryvalue)
+# missing <- setdiff(unique(combined$region), unique(lastvote$region))
+# naas <- data.frame(region = missing, year = 2000, voting = NA, category = NA, categoryvalue = NA)
+```
+<!-- potential mapping -->
+```{r}
+periods %>%
+  group_by(year) %>%
+  e_charts(region, timeline = TRUE) %>%
+  e_map(wpei) %>%
+  e_visual_map(min= 0, max= 1,
+               type = 'piecewise') %>%
+  e_title("wpei", left = "center") %>%
+  e_tooltip(
+    trigger = "item",
+    formatter = e_tooltip_choro_formatter())
 ```
 
