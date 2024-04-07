@@ -10,11 +10,13 @@ library(readr)
 library(dplyr)
 library(tidyr)
 library(maps)
+library(ggiraph)
 library(plotly )
 library(tidyverse)
 library(vdemdata)
 library(ggplot2)
 library(echarts4r)
+library(countrycode)
 ```
 
 <!-- loading dataset -->
@@ -119,36 +121,55 @@ periods$categoryvalue <- as.numeric(ifelse(periods$year>=1900 & periods$year<=19
                                   ifelse(periods$year>=1955 & periods$year<=1978, 2,
                                     ifelse(periods$year>=1979, 3, 0))))
 ```
-<!-- voting rights and transition periods -->
-```{r}
+<!-- filtering data to compare voting rights and transition periods -->
+```{r warning=FALSE message=FALSE}
 combined <- voting100yr
 combined[, 'category'] = NA 
 combined[, 'categoryvalue'] = NA
 combined$category <- wemp100yr$category
 combined$categoryvalue <- wemp100yr$categoryvalue
-combined$voting <- ifelse(combined$voting > '0', 1, 0)
-lastvote <- combined %>%
-  arrange(region, year) %>%
-  group_by(region) %>%
-  mutate(change = voting != lag(voting, default = voting[1])) %>%
-  filter(change) %>%
-  mutate(pervious = lag(voting, default = voting[1])) %>%
-  #filter(voting == 1 & previous == 0) %>%
-  select(region, year, voting, category, categoryvalue)
-# missing <- setdiff(unique(combined$region), unique(lastvote$region))
-# naas <- data.frame(region = missing, year = 2000, voting = NA, category = NA, categoryvalue = NA)
+combined <-  combined %>%
+    replace_na(list(voting = 0, category = "nascent", categoryvalue = 0))
+combined$voting <- as.numeric((as.character(combined$voting)))
+combined$voting <- ifelse(combined$voting > 0, 1, 0)
+combined <- combined %>%
+  mutate(change_point = ifelse(voting == 1, "Change", "No Change"))
+votechange <- combined %>%
+    arrange(region, year) %>%
+    group_by(region) %>%
+    mutate(change = voting != lag(voting, default = first(voting))) %>%
+    filter(change)
+all <- unique(voting100yr$region)
+change <- unique(votechange$region)
+missing <- setdiff(all, change)
+votechange <- select(votechange, -change)
+missingblank <- data.frame(region = missing,
+                      year = NA,
+                      voting = NA,
+                      category = NA,
+                      categoryvalue = NA)
+missinginfo <- combined %>%
+    filter(region %in% missing) %>%
+    group_by(region) %>%
+    summarise(year=min(year), abbr = first(abbr), id = first(id), voting = first(voting), category = first(category), categoryvalue = first(categoryvalue), .groups = 'drop') %>%
+    mutate(change_point = "No Change")
+analysis <- bind_rows(votechange, missinginfo)
+analysis$continent <- countrycode(analysis$abbr, "wb", "continent")
+#checking all countries present
+original_countries <- unique(voting100yr$region)
+full_dataset_countries <- unique(combined$region)
+all_countries_present <- all(original_countries %in% full_dataset_countries)
+print(all_countries_present)
+#write.csv(analysis, 'analysis.csv')
 ```
-<!-- potential mapping -->
+<!-- continent breakdown -->
 ```{r}
-periods %>%
-  group_by(year) %>%
-  e_charts(region, timeline = TRUE) %>%
-  e_map(wpei) %>%
-  e_visual_map(min= 0, max= 1,
-               type = 'piecewise') %>%
-  e_title("wpei", left = "center") %>%
-  e_tooltip(
-    trigger = "item",
-    formatter = e_tooltip_choro_formatter())
+Americas <- filter(analysis, continent == "Americas")
+Europe <- filter(analysis, continent == "Europe")
+Asia <- filter(analysis, continent == "Asia")
+Africa <- filter(analysis, continent == "Africa")
+Oceania <- filter(analysis, continent == "Oceania")
+
 ```
+
 
