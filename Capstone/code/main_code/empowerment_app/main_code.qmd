@@ -48,13 +48,6 @@ allvoting <- onlycountries %>% select(region = country_name, abbr = country_text
 voting100yr <- filter(allvoting, year >1899, year <2001)
 ```
 
-<!-- creating a csv file of cleaned data -->
-
-```{r}
-#write.csv(wemp100yr, 'wemp100yr.csv')
-#write.csv(voting100yr, 'voting100yr.csv')
-```
-
 <!-- category breakup -->
 
 ```{r}
@@ -155,11 +148,10 @@ changesgrouped <- filter(groupedanalysis, change_point =="Change")
 #print(all_countries_present)
 combined_map <- left_join(combined, map, by = "region")
 analysis_map <- left_join(analysis, map, by = "region")
-#write.csv(analysis_map, 'analysis_map.csv')
-#write.csv(combined_map, 'combined_map.csv')
 ```
 
 <!-- continent breakdown -->
+
 ```{r}
 Americas <- filter(analysis_map, continent == "Americas")
 Europe <- filter(analysis_map, continent == "Europe")
@@ -168,7 +160,9 @@ Africa <- filter(analysis_map, continent == "Africa")
 Oceania <- filter(analysis_map, continent == "Oceania")
 
 ```
+
 <!-- WPEI Average graphs -->
+
 ```{r}
 #finding averages
 avg_wpei_region <- wemp100yr %>%
@@ -192,7 +186,9 @@ top_ten_region <- avg_wpei_region %>%
   slice_head(n = 10)
 head(top_ten_region)
 ```
+
 <!-- maps -->
+
 ```{r}
 #Category Maps
 
@@ -208,3 +204,13 @@ votingworld
 votingcontinents <- ggplot(data = combined_map %>% filter(continent == "Africa") %>% filter(year == 1996), aes (x = long, y = lat, group = group, fill = voting)) + geom_polygon() + theme_classic() +labs(title = "Empowerment Category", fill="vote")
 votingcontinents
 ```
+
+<!-- creating a csv file of cleaned data -->
+
+```{r}
+# write_csv(wemp100yr, 'wemp100yr.csv')
+# write_csv(voting100yr, 'voting100yr.csv')
+# write_csv(analysis_map, 'analysis_map.csv')
+# write_csv(combined_map, 'combined_map.csv')
+```
+
