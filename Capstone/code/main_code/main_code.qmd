@@ -3,19 +3,19 @@ title: "main_code"
 format: html
 editor: visual
 ---
+
 <!-- installing libraries -->
 
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 library(readr)
 library(dplyr)
 library(tidyr)
-library(maps)
-library(ggiraph)
-library(plotly )
-library(tidyverse)
-library(vdemdata)
 library(ggplot2)
-library(echarts4r)
+library(maps)
+library(plotly)
+library(tidyverse)
+library(leaflet)
+library(vdemdata)
 library(countrycode)
 ```
 
@@ -29,6 +29,9 @@ map <- map_data("world")
 map$region[map$region == "USA"] = "United States of America"
 map$region[map$region == "UK"] = "United Kingdom"
 map$region[map$region == "Czech Republic"] = "Czechia"
+map$region[map$region == "Myanmar"] = "Burma/Myanmar"
+map$region[map$region == "Republic of Congo"] = "Republic of the Congo"
+
 ```
 
 <!-- womens empowerment variables -->
@@ -36,14 +39,13 @@ map$region[map$region == "Czech Republic"] = "Czechia"
 ```{r}
 allwemp <- onlycountries %>% select(region = country_name, abbr = country_text_id, id = country_id, year = year, wpei = v2x_gender, liberties = v2x_gencl, society = v2x_gencs, participation = v2x_genpp)
 wemp100yr <- filter(allwemp, year >= 1900, year <= 2000)
-mapwemp100yr <- left_join(wemp100yr, map, by = "region")
 ```
+
 <!-- voting rights -->
 
 ```{r}
 allvoting <- onlycountries %>% select(region = country_name, abbr = country_text_id, id = country_id, year = year, voting = v2fsuffrage)
 voting100yr <- filter(allvoting, year >1899, year <2001)
-mapvoting100yr <- left_join(voting100yr, map, by = "region")
 ```
 
 <!-- creating a csv file of cleaned data -->
@@ -54,6 +56,7 @@ mapvoting100yr <- left_join(voting100yr, map, by = "region")
 ```
 
 <!-- category breakup -->
+
 ```{r}
 wemp100yr[, 'category'] = NA 
 wemp100yr[, 'categoryvalue'] = NA
@@ -68,31 +71,10 @@ wemp100yr$categoryvalue <- as.numeric(ifelse(wemp100yr$wpei<0.188, 1,
                                     ifelse(wemp100yr$wpei>0.546, 4, 0)))))
 summary(wemp100yr)
 
-wempmap <- left_join(wemp100yr, map, by = "region")
-
-```
-<!-- category maps -->
-```{r message=FALSE, warning=FALSE}
-catwemp1900 <- filter(wempmap, year == 1900)
-catwemp1925 <- filter(wempmap, year == 1925)
-catwemp1950 <- filter(wempmap, year == 1950)
-catwemp1975 <- filter(wempmap, year == 1975)
-catwemp2000 <- filter(wempmap, year == 2000)
-#basemap
-basemap <- ggplot() + geom_map(data = map, map = map, aes(long, lat, map_id = region)) + scale_fill_gradient( low = "yellow", high = "red")
-#1900 map
-basemap + geom_map(data = catwemp1900, map = catwemp1900, aes(fill = categoryvalue, map_id = region))
-#1925 map
-basemap + geom_map(data = catwemp1925, map = catwemp1925, aes(fill = categoryvalue, map_id = region))
-#1950 map
-basemap + geom_map(data = catwemp1950, map = catwemp1950, aes(fill = categoryvalue, map_id = region))
-#1975 map
-basemap + geom_map(data = catwemp1975, map = catwemp1975, aes(fill = categoryvalue, map_id = region))
-#2000 map
-basemap + geom_map(data = catwemp2000, map = catwemp2000, aes(fill = categoryvalue, map_id = region))
 ```
 
 <!-- finding transition periods -->
+
 ```{r message=FALSE, warning=FALSE}
 #grouping for analysis
 grouped_wemp <- wemp100yr %>%
@@ -102,13 +84,13 @@ grouped_wemp <- drop_na(grouped_wemp)
 #visualizations to determine transitions
 grouppoint <- ggplot(grouped_wemp) + geom_point(aes(x = year, y = count, color = category)) 
 groupbar <- ggplot(grouped_wemp, aes(x = year, y = count, fill = category)) + geom_bar(stat='identity', position=position_dodge()) #+ facet_wrap(.~category) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-groupbar_interactive <- ggplotly(groupbar)
-grouppoint_interactive <- ggplotly(grouppoint)
-groupbar_interactive
-grouppoint_interactive
+groupbar <- ggplotly(groupbar)
+grouppoint <- ggplotly(grouppoint)
 #periods: nascent 1900 - 1955   developing - 1956 - 1978     established 1979 - 2000
 ```
+
 <!-- adding transition periods to dataset-->
+
 ```{r}
 periods <- filter(allwemp, year >= 1900, year <= 2000)
 periods[, 'category'] = NA 
@@ -121,19 +103,24 @@ periods$categoryvalue <- as.numeric(ifelse(periods$year>=1900 & periods$year<=19
                                   ifelse(periods$year>=1955 & periods$year<=1978, 2,
                                     ifelse(periods$year>=1979, 3, 0))))
 ```
+
 <!-- filtering data to compare voting rights and transition periods -->
-```{r warning=FALSE message=FALSE}
+
+```{r, warning=FALSE, message=FALSE}
 combined <- voting100yr
 combined[, 'category'] = NA 
 combined[, 'categoryvalue'] = NA
+combined[, 'wpei'] = NA
 combined$category <- wemp100yr$category
 combined$categoryvalue <- wemp100yr$categoryvalue
+combined$wpei <- wemp100yr$wpei
 combined <-  combined %>%
     replace_na(list(voting = 0, category = "nascent", categoryvalue = 0))
 combined$voting <- as.numeric((as.character(combined$voting)))
 combined$voting <- ifelse(combined$voting > 0, 1, 0)
 combined <- combined %>%
   mutate(change_point = ifelse(voting == 1, "Change", "No Change"))
+combined$continent <- countrycode(combined$abbr, "wb", "continent")
 votechange <- combined %>%
     arrange(region, year) %>%
     group_by(region) %>%
@@ -155,21 +142,69 @@ missinginfo <- combined %>%
     mutate(change_point = "No Change")
 analysis <- bind_rows(votechange, missinginfo)
 analysis$continent <- countrycode(analysis$abbr, "wb", "continent")
+
+groupedanalysis <- analysis %>%
+  group_by(region, change_point) %>%
+  summarise(count = n(), .groups = 'drop')
+groupedanalysis <- drop_na(groupedanalysis)
+changesgrouped <- filter(groupedanalysis, change_point =="Change")
 #checking all countries present
-original_countries <- unique(voting100yr$region)
-full_dataset_countries <- unique(combined$region)
-all_countries_present <- all(original_countries %in% full_dataset_countries)
-print(all_countries_present)
-#write.csv(analysis, 'analysis.csv')
+# original_countries <- unique(voting100yr$region)
+# full_dataset_countries <- unique(combined$region)
+# all_countries_present <- all(original_countries %in% full_dataset_countries)
+#print(all_countries_present)
+combined_map <- left_join(combined, map, by = "region")
+analysis_map <- left_join(analysis, map, by = "region")
+#write.csv(analysis_map, 'analysis_map.csv')
+#write.csv(combined_map, 'combined_map.csv')
 ```
+
 <!-- continent breakdown -->
 ```{r}
-Americas <- filter(analysis, continent == "Americas")
-Europe <- filter(analysis, continent == "Europe")
-Asia <- filter(analysis, continent == "Asia")
-Africa <- filter(analysis, continent == "Africa")
-Oceania <- filter(analysis, continent == "Oceania")
+Americas <- filter(analysis_map, continent == "Americas")
+Europe <- filter(analysis_map, continent == "Europe")
+Asia <- filter(analysis_map, continent == "Asia")
+Africa <- filter(analysis_map, continent == "Africa")
+Oceania <- filter(analysis_map, continent == "Oceania")
 
 ```
+<!-- WPEI Average graphs -->
+```{r}
+#finding averages
+avg_wpei_region <- wemp100yr %>%
+    group_by(region) %>%
+    summarise(avg_wpei = mean(wpei, na.rm = TRUE))
+summary(avg_wpei_region)
+avg_wpei_year <- wemp100yr %>%
+    group_by(year) %>%
+    summarise(avg_wpei = mean(wpei, na.rm = TRUE))
+summary(avg_wpei_year)
 
+#top ten years table
+top_ten_years <- avg_wpei_year %>%
+  arrange(desc(avg_wpei)) %>%
+  slice_head(n = 10)
+top_ten_years$year <- factor(top_ten_years$year, levels = top_ten_years$year)
+head(top_ten_years)
+#top ten countries table
+top_ten_region <- avg_wpei_region %>%
+  arrange(desc(avg_wpei)) %>%
+  slice_head(n = 10)
+head(top_ten_region)
+```
+<!-- maps -->
+```{r}
+#Category Maps
 
+categoriesworld <- ggplot(data = combined_map %>% filter(year == 2000), aes (x = long, y = lat, group = group, fill = category)) + geom_polygon() + theme_classic() +labs(title = "Empowerment Category", fill="category")
+categoriesworld
+
+categoriescontinents <- ggplot(data = combined_map %>% filter(continent == "Africa") %>% filter(year == 1996), aes (x = long, y = lat, group = group, fill = category)) + geom_polygon() + theme_classic() +labs(title = "Empowerment Category", fill="category")
+categoriescontinents
+
+votingworld <- ggplot(data = combined_map %>% filter(year == 1996), aes (x = long, y = lat, group = group, fill = voting)) + geom_polygon() + theme_classic() +labs(title = "Empowerment Category", fill="vote")
+votingworld
+
+votingcontinents <- ggplot(data = combined_map %>% filter(continent == "Africa") %>% filter(year == 1996), aes (x = long, y = lat, group = group, fill = voting)) + geom_polygon() + theme_classic() +labs(title = "Empowerment Category", fill="vote")
+votingcontinents
+```
