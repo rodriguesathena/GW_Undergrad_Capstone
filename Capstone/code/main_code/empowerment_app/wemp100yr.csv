@@ -10,7 +10,7 @@ Mexico,MEX,3,1907,0.172,0.289,0.089,0.116,nascent,1
 Mexico,MEX,3,1908,0.172,0.289,0.089,0.116,nascent,1
 Mexico,MEX,3,1909,0.172,0.289,0.089,0.116,nascent,1
 Mexico,MEX,3,1910,0.176,0.289,0.101,0.116,nascent,1
-Mexico,MEX,3,1911,0.188,0.311,0.107,0.116,none,0
+Mexico,MEX,3,1911,0.188,0.311,0.107,0.116,nascent,1
 Mexico,MEX,3,1912,0.202,0.311,0.107,0.163,emerging,2
 Mexico,MEX,3,1913,0.201,0.311,0.102,0.163,emerging,2
 Mexico,MEX,3,1914,0.201,0.311,0.102,0.163,emerging,2
@@ -2266,16 +2266,16 @@ Mali,MLI,28,1976,0.52,0.658,0.456,0.451,developing,3
 Mali,MLI,28,1977,0.52,0.658,0.456,0.451,developing,3
 Mali,MLI,28,1978,0.52,0.658,0.456,0.451,developing,3
 Mali,MLI,28,1979,0.521,0.658,0.456,0.452,developing,3
-Mali,MLI,28,1980,0.546,0.658,0.456,0.529,none,0
-Mali,MLI,28,1981,0.546,0.658,0.456,0.529,none,0
+Mali,MLI,28,1980,0.546,0.658,0.456,0.529,developing,3
+Mali,MLI,28,1981,0.546,0.658,0.456,0.529,developing,3
 Mali,MLI,28,1982,0.538,0.658,0.456,0.504,developing,3
 Mali,MLI,28,1983,0.537,0.658,0.456,0.502,developing,3
 Mali,MLI,28,1984,0.537,0.658,0.456,0.502,developing,3
-Mali,MLI,28,1985,0.546,0.658,0.456,0.528,none,0
-Mali,MLI,28,1986,0.546,0.658,0.456,0.529,none,0
-Mali,MLI,28,1987,0.546,0.658,0.456,0.529,none,0
-Mali,MLI,28,1988,0.546,0.658,0.456,0.529,none,0
-Mali,MLI,28,1989,0.546,0.658,0.456,0.529,none,0
+Mali,MLI,28,1985,0.546,0.658,0.456,0.528,developing,3
+Mali,MLI,28,1986,0.546,0.658,0.456,0.529,developing,3
+Mali,MLI,28,1987,0.546,0.658,0.456,0.529,developing,3
+Mali,MLI,28,1988,0.546,0.658,0.456,0.529,developing,3
+Mali,MLI,28,1989,0.546,0.658,0.456,0.529,developing,3
 Mali,MLI,28,1990,0.574,0.684,0.515,0.529,established,4
 Mali,MLI,28,1991,0.591,0.684,0.518,0.581,established,4
 Mali,MLI,28,1992,0.653,0.712,0.678,0.581,established,4
@@ -2310,7 +2310,7 @@ Pakistan,PAK,29,1966,NA,0.405,0.153,NA,NA,NA
 Pakistan,PAK,29,1967,NA,0.405,0.153,NA,NA,NA
 Pakistan,PAK,29,1968,NA,0.405,0.16,NA,NA,NA
 Pakistan,PAK,29,1969,0.333,0.339,0.166,0.469,emerging,2
-Pakistan,PAK,29,1970,0.336,0.352,0.17,0.469,none,0
+Pakistan,PAK,29,1970,0.336,0.352,0.17,0.469,emerging,2
 Pakistan,PAK,29,1971,0.307,0.256,0.16,0.469,emerging,2
 Pakistan,PAK,29,1972,0.3,0.297,0.166,0.415,emerging,2
 Pakistan,PAK,29,1973,0.364,0.396,0.166,0.501,developing,3
@@ -2381,11 +2381,11 @@ Peru,PER,30,1936,0.251,0.379,0.175,0.187,emerging,2
 Peru,PER,30,1937,0.251,0.379,0.175,0.187,emerging,2
 Peru,PER,30,1938,0.251,0.379,0.175,0.187,emerging,2
 Peru,PER,30,1939,0.251,0.379,0.183,0.187,emerging,2
-Peru,PER,30,1940,0.336,0.462,0.354,0.187,none,0
-Peru,PER,30,1941,0.336,0.462,0.344,0.187,none,0
-Peru,PER,30,1942,0.336,0.462,0.344,0.187,none,0
-Peru,PER,30,1943,0.336,0.462,0.344,0.187,none,0
-Peru,PER,30,1944,0.336,0.462,0.344,0.187,none,0
+Peru,PER,30,1940,0.336,0.462,0.354,0.187,emerging,2
+Peru,PER,30,1941,0.336,0.462,0.344,0.187,emerging,2
+Peru,PER,30,1942,0.336,0.462,0.344,0.187,emerging,2
+Peru,PER,30,1943,0.336,0.462,0.344,0.187,emerging,2
+Peru,PER,30,1944,0.336,0.462,0.344,0.187,emerging,2
 Peru,PER,30,1945,0.356,0.462,0.403,0.187,developing,3
 Peru,PER,30,1946,0.385,0.505,0.435,0.187,developing,3
 Peru,PER,30,1947,0.385,0.505,0.435,0.187,developing,3
@@ -3822,9 +3822,9 @@ Taiwan,TWN,48,1924,0.184,0.285,0.054,0.194,nascent,1
 Taiwan,TWN,48,1925,0.184,0.285,0.054,0.194,nascent,1
 Taiwan,TWN,48,1926,0.184,0.285,0.054,0.194,nascent,1
 Taiwan,TWN,48,1927,0.184,0.285,0.054,0.194,nascent,1
-Taiwan,TWN,48,1928,0.188,0.285,0.063,0.194,none,0
-Taiwan,TWN,48,1929,0.188,0.285,0.063,0.194,none,0
-Taiwan,TWN,48,1930,0.188,0.285,0.063,0.194,none,0
+Taiwan,TWN,48,1928,0.188,0.285,0.063,0.194,nascent,1
+Taiwan,TWN,48,1929,0.188,0.285,0.063,0.194,nascent,1
+Taiwan,TWN,48,1930,0.188,0.285,0.063,0.194,nascent,1
 Taiwan,TWN,48,1931,0.183,0.273,0.063,0.194,nascent,1
 Taiwan,TWN,48,1932,0.183,0.273,0.063,0.194,nascent,1
 Taiwan,TWN,48,1933,0.183,0.273,0.063,0.194,nascent,1
@@ -5905,9 +5905,9 @@ Burundi,BDI,69,1973,0.285,0.171,0.231,0.424,emerging,2
 Burundi,BDI,69,1974,0.294,0.171,0.242,0.424,emerging,2
 Burundi,BDI,69,1975,0.294,0.171,0.242,0.424,emerging,2
 Burundi,BDI,69,1976,0.318,0.224,0.242,0.447,emerging,2
-Burundi,BDI,69,1977,0.336,0.233,0.256,0.483,none,0
-Burundi,BDI,69,1978,0.336,0.233,0.256,0.483,none,0
-Burundi,BDI,69,1979,0.336,0.233,0.256,0.483,none,0
+Burundi,BDI,69,1977,0.336,0.233,0.256,0.483,emerging,2
+Burundi,BDI,69,1978,0.336,0.233,0.256,0.483,emerging,2
+Burundi,BDI,69,1979,0.336,0.233,0.256,0.483,emerging,2
 Burundi,BDI,69,1980,0.339,0.233,0.274,0.483,developing,3
 Burundi,BDI,69,1981,0.339,0.233,0.274,0.483,developing,3
 Burundi,BDI,69,1982,0.339,0.233,0.274,0.483,developing,3
@@ -6169,7 +6169,7 @@ Chile,CHL,72,1954,0.31,0.413,0.271,0.224,emerging,2
 Chile,CHL,72,1955,0.31,0.413,0.271,0.224,emerging,2
 Chile,CHL,72,1956,0.31,0.413,0.271,0.224,emerging,2
 Chile,CHL,72,1957,0.313,0.413,0.271,0.233,emerging,2
-Chile,CHL,72,1958,0.336,0.45,0.303,0.233,none,0
+Chile,CHL,72,1958,0.336,0.45,0.303,0.233,emerging,2
 Chile,CHL,72,1959,0.369,0.484,0.368,0.233,developing,3
 Chile,CHL,72,1960,0.377,0.507,0.368,0.233,developing,3
 Chile,CHL,72,1961,0.389,0.507,0.379,0.267,developing,3
@@ -6634,7 +6634,7 @@ Germany,DEU,77,1914,0.305,0.587,0.163,0.158,emerging,2
 Germany,DEU,77,1915,0.296,0.565,0.154,0.158,emerging,2
 Germany,DEU,77,1916,0.291,0.545,0.154,0.158,emerging,2
 Germany,DEU,77,1917,0.295,0.545,0.163,0.158,emerging,2
-Germany,DEU,77,1918,0.336,0.557,0.207,0.22,none,0
+Germany,DEU,77,1918,0.336,0.557,0.207,0.22,emerging,2
 Germany,DEU,77,1919,0.496,0.726,0.346,0.427,developing,3
 Germany,DEU,77,1920,0.522,0.744,0.371,0.466,developing,3
 Germany,DEU,77,1921,0.522,0.744,0.371,0.466,developing,3
@@ -8409,7 +8409,7 @@ Spain,ESP,96,1919,0.2,0.326,0.118,0.118,emerging,2
 Spain,ESP,96,1920,0.2,0.326,0.118,0.118,emerging,2
 Spain,ESP,96,1921,0.2,0.326,0.118,0.118,emerging,2
 Spain,ESP,96,1922,0.2,0.326,0.115,0.118,emerging,2
-Spain,ESP,96,1923,0.188,0.305,0.108,0.118,none,0
+Spain,ESP,96,1923,0.188,0.305,0.108,0.118,nascent,1
 Spain,ESP,96,1924,0.186,0.305,0.1,0.118,nascent,1
 Spain,ESP,96,1925,0.186,0.305,0.1,0.118,nascent,1
 Spain,ESP,96,1926,0.186,0.305,0.1,0.118,nascent,1
@@ -8427,8 +8427,8 @@ Spain,ESP,96,1937,0.286,0.231,0.208,0.401,emerging,2
 Spain,ESP,96,1938,0.275,0.201,0.208,0.401,emerging,2
 Spain,ESP,96,1939,0.275,0.201,0.208,0.401,emerging,2
 Spain,ESP,96,1940,0.193,0.24,0.069,0.249,emerging,2
-Spain,ESP,96,1941,0.188,0.224,0.069,0.249,none,0
-Spain,ESP,96,1942,0.188,0.224,0.069,0.249,none,0
+Spain,ESP,96,1941,0.188,0.224,0.069,0.249,nascent,1
+Spain,ESP,96,1942,0.188,0.224,0.069,0.249,nascent,1
 Spain,ESP,96,1943,0.206,0.28,0.069,0.249,emerging,2
 Spain,ESP,96,1944,0.206,0.28,0.069,0.249,emerging,2
 Spain,ESP,96,1945,0.208,0.28,0.069,0.255,emerging,2
@@ -10002,9 +10002,9 @@ Gabon,GAB,116,1966,0.335,0.471,0.146,0.35,emerging,2
 Gabon,GAB,116,1967,0.343,0.492,0.144,0.369,developing,3
 Gabon,GAB,116,1968,0.335,0.492,0.117,0.369,emerging,2
 Gabon,GAB,116,1969,0.335,0.492,0.117,0.369,emerging,2
-Gabon,GAB,116,1970,0.336,0.492,0.12,0.369,none,0
-Gabon,GAB,116,1971,0.336,0.492,0.12,0.369,none,0
-Gabon,GAB,116,1972,0.336,0.492,0.128,0.369,none,0
+Gabon,GAB,116,1970,0.336,0.492,0.12,0.369,emerging,2
+Gabon,GAB,116,1971,0.336,0.492,0.12,0.369,emerging,2
+Gabon,GAB,116,1972,0.336,0.492,0.128,0.369,emerging,2
 Gabon,GAB,116,1973,0.365,0.492,0.128,0.457,developing,3
 Gabon,GAB,116,1974,0.366,0.492,0.128,0.457,developing,3
 Gabon,GAB,116,1975,0.366,0.492,0.128,0.457,developing,3
@@ -10609,7 +10609,7 @@ Madagascar,MDG,125,1954,0.19,0.194,0.2,0.143,emerging,2
 Madagascar,MDG,125,1955,0.19,0.194,0.2,0.143,emerging,2
 Madagascar,MDG,125,1956,0.19,0.194,0.2,0.143,emerging,2
 Madagascar,MDG,125,1957,0.19,0.194,0.2,0.143,emerging,2
-Madagascar,MDG,125,1958,0.188,0.196,0.2,0.143,none,0
+Madagascar,MDG,125,1958,0.188,0.196,0.2,0.143,nascent,1
 Madagascar,MDG,125,1959,0.203,0.232,0.217,0.143,emerging,2
 Madagascar,MDG,125,1960,0.403,0.437,0.344,0.404,developing,3
 Madagascar,MDG,125,1961,0.431,0.45,0.426,0.404,developing,3
@@ -10628,7 +10628,7 @@ Madagascar,MDG,125,1973,0.437,0.577,0.43,0.314,developing,3
 Madagascar,MDG,125,1974,0.437,0.577,0.43,0.314,developing,3
 Madagascar,MDG,125,1975,0.444,0.58,0.439,0.315,developing,3
 Madagascar,MDG,125,1976,0.544,0.58,0.521,0.529,developing,3
-Madagascar,MDG,125,1977,0.546,0.58,0.521,0.531,none,0
+Madagascar,MDG,125,1977,0.546,0.58,0.521,0.531,developing,3
 Madagascar,MDG,125,1978,0.545,0.58,0.521,0.531,developing,3
 Madagascar,MDG,125,1979,0.545,0.58,0.521,0.531,developing,3
 Madagascar,MDG,125,1980,0.55,0.58,0.553,0.531,established,4
@@ -11321,10 +11321,10 @@ Trinidad and Tobago,TTO,135,1933,0.322,0.66,0.091,0.21,emerging,2
 Trinidad and Tobago,TTO,135,1934,0.322,0.66,0.091,0.21,emerging,2
 Trinidad and Tobago,TTO,135,1935,0.322,0.66,0.091,0.21,emerging,2
 Trinidad and Tobago,TTO,135,1936,0.322,0.66,0.091,0.21,emerging,2
-Trinidad and Tobago,TTO,135,1937,0.336,0.66,0.136,0.21,none,0
-Trinidad and Tobago,TTO,135,1938,0.336,0.66,0.136,0.21,none,0
-Trinidad and Tobago,TTO,135,1939,0.336,0.66,0.136,0.21,none,0
-Trinidad and Tobago,TTO,135,1940,0.336,0.66,0.136,0.21,none,0
+Trinidad and Tobago,TTO,135,1937,0.336,0.66,0.136,0.21,emerging,2
+Trinidad and Tobago,TTO,135,1938,0.336,0.66,0.136,0.21,emerging,2
+Trinidad and Tobago,TTO,135,1939,0.336,0.66,0.136,0.21,emerging,2
+Trinidad and Tobago,TTO,135,1940,0.336,0.66,0.136,0.21,emerging,2
 Trinidad and Tobago,TTO,135,1941,0.358,0.66,0.136,0.278,developing,3
 Trinidad and Tobago,TTO,135,1942,0.358,0.66,0.136,0.278,developing,3
 Trinidad and Tobago,TTO,135,1943,0.358,0.66,0.136,0.278,developing,3
@@ -12282,17 +12282,17 @@ Cyprus,CYP,156,1927,0.186,0.326,0.067,0.122,nascent,1
 Cyprus,CYP,156,1928,0.186,0.326,0.067,0.122,nascent,1
 Cyprus,CYP,156,1929,0.186,0.326,0.067,0.122,nascent,1
 Cyprus,CYP,156,1930,0.187,0.326,0.062,0.147,nascent,1
-Cyprus,CYP,156,1931,0.188,0.319,0.062,0.147,none,0
-Cyprus,CYP,156,1932,0.188,0.319,0.062,0.147,none,0
-Cyprus,CYP,156,1933,0.188,0.319,0.062,0.147,none,0
-Cyprus,CYP,156,1934,0.188,0.319,0.062,0.147,none,0
-Cyprus,CYP,156,1935,0.188,0.319,0.062,0.147,none,0
-Cyprus,CYP,156,1936,0.188,0.319,0.062,0.147,none,0
-Cyprus,CYP,156,1937,0.188,0.319,0.062,0.147,none,0
-Cyprus,CYP,156,1938,0.188,0.319,0.062,0.147,none,0
-Cyprus,CYP,156,1939,0.188,0.319,0.062,0.147,none,0
-Cyprus,CYP,156,1940,0.188,0.319,0.062,0.147,none,0
-Cyprus,CYP,156,1941,0.188,0.319,0.062,0.147,none,0
+Cyprus,CYP,156,1931,0.188,0.319,0.062,0.147,nascent,1
+Cyprus,CYP,156,1932,0.188,0.319,0.062,0.147,nascent,1
+Cyprus,CYP,156,1933,0.188,0.319,0.062,0.147,nascent,1
+Cyprus,CYP,156,1934,0.188,0.319,0.062,0.147,nascent,1
+Cyprus,CYP,156,1935,0.188,0.319,0.062,0.147,nascent,1
+Cyprus,CYP,156,1936,0.188,0.319,0.062,0.147,nascent,1
+Cyprus,CYP,156,1937,0.188,0.319,0.062,0.147,nascent,1
+Cyprus,CYP,156,1938,0.188,0.319,0.062,0.147,nascent,1
+Cyprus,CYP,156,1939,0.188,0.319,0.062,0.147,nascent,1
+Cyprus,CYP,156,1940,0.188,0.319,0.062,0.147,nascent,1
+Cyprus,CYP,156,1941,0.188,0.319,0.062,0.147,nascent,1
 Cyprus,CYP,156,1942,0.194,0.344,0.068,0.147,emerging,2
 Cyprus,CYP,156,1943,0.194,0.344,0.068,0.147,emerging,2
 Cyprus,CYP,156,1944,0.194,0.344,0.068,0.147,emerging,2
@@ -12310,7 +12310,7 @@ Cyprus,CYP,156,1955,0.193,0.327,0.078,0.147,emerging,2
 Cyprus,CYP,156,1956,0.192,0.327,0.069,0.147,emerging,2
 Cyprus,CYP,156,1957,0.172,0.272,0.069,0.147,nascent,1
 Cyprus,CYP,156,1958,0.172,0.272,0.069,0.147,nascent,1
-Cyprus,CYP,156,1959,0.188,0.306,0.084,0.147,none,0
+Cyprus,CYP,156,1959,0.188,0.306,0.084,0.147,nascent,1
 Cyprus,CYP,156,1960,0.344,0.453,0.14,0.418,developing,3
 Cyprus,CYP,156,1961,0.403,0.53,0.232,0.418,developing,3
 Cyprus,CYP,156,1962,0.403,0.54,0.232,0.418,developing,3
@@ -12742,11 +12742,11 @@ Fiji,FJI,162,1968,0.348,0.493,0.433,0.092,developing,3
 Fiji,FJI,162,1969,0.348,0.493,0.433,0.092,developing,3
 Fiji,FJI,162,1970,NA,0.726,0.583,NA,NA,NA
 Fiji,FJI,162,1971,NA,0.726,0.583,NA,NA,NA
-Fiji,FJI,162,1972,0.546,0.726,0.583,0.344,none,0
-Fiji,FJI,162,1973,0.546,0.726,0.583,0.344,none,0
-Fiji,FJI,162,1974,0.546,0.726,0.583,0.344,none,0
-Fiji,FJI,162,1975,0.546,0.726,0.583,0.344,none,0
-Fiji,FJI,162,1976,0.546,0.726,0.583,0.344,none,0
+Fiji,FJI,162,1972,0.546,0.726,0.583,0.344,developing,3
+Fiji,FJI,162,1973,0.546,0.726,0.583,0.344,developing,3
+Fiji,FJI,162,1974,0.546,0.726,0.583,0.344,developing,3
+Fiji,FJI,162,1975,0.546,0.726,0.583,0.344,developing,3
+Fiji,FJI,162,1976,0.546,0.726,0.583,0.344,developing,3
 Fiji,FJI,162,1977,0.534,0.726,0.583,0.308,developing,3
 Fiji,FJI,162,1978,0.534,0.726,0.583,0.308,developing,3
 Fiji,FJI,162,1979,0.534,0.726,0.583,0.308,developing,3
@@ -12925,7 +12925,7 @@ Greece,GRC,164,1949,0.364,0.38,0.259,0.444,developing,3
 Greece,GRC,164,1950,0.445,0.51,0.396,0.444,developing,3
 Greece,GRC,164,1951,0.455,0.529,0.396,0.444,developing,3
 Greece,GRC,164,1952,0.494,0.575,0.429,0.481,developing,3
-Greece,GRC,164,1953,0.546,0.575,0.492,0.579,none,0
+Greece,GRC,164,1953,0.546,0.575,0.492,0.579,developing,3
 Greece,GRC,164,1954,0.551,0.575,0.505,0.579,established,4
 Greece,GRC,164,1955,0.551,0.575,0.505,0.579,established,4
 Greece,GRC,164,1956,0.563,0.592,0.505,0.588,established,4
@@ -13877,8 +13877,8 @@ Mauritius,MUS,180,1997,0.727,0.831,0.635,0.727,established,4
 Mauritius,MUS,180,1998,0.727,0.831,0.635,0.727,established,4
 Mauritius,MUS,180,1999,0.733,0.843,0.635,0.727,established,4
 Mauritius,MUS,180,2000,0.727,0.843,0.668,0.693,established,4
-Montenegro,MNE,183,1900,0.188,0.37,0.078,0.098,none,0
-Montenegro,MNE,183,1901,0.188,0.37,0.078,0.098,none,0
+Montenegro,MNE,183,1900,0.188,0.37,0.078,0.098,nascent,1
+Montenegro,MNE,183,1901,0.188,0.37,0.078,0.098,nascent,1
 Montenegro,MNE,183,1902,0.186,0.37,0.074,0.098,nascent,1
 Montenegro,MNE,183,1903,0.187,0.37,0.074,0.098,nascent,1
 Montenegro,MNE,183,1904,0.187,0.37,0.074,0.098,nascent,1

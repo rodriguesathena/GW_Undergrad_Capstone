@@ -14,7 +14,6 @@ library(ggplot2)
 library(maps)
 library(plotly)
 library(tidyverse)
-library(leaflet)
 library(vdemdata)
 library(countrycode)
 ```
@@ -54,14 +53,14 @@ voting100yr <- filter(allvoting, year >1899, year <2001)
 wemp100yr[, 'category'] = NA 
 wemp100yr[, 'categoryvalue'] = NA
 # categories nascent: wpei<0.188; emerging: 0.188<wpei<0.336; developing: 0.336<wpei<0.546    established: wpei>.546
-wemp100yr$category <- as.factor(ifelse(wemp100yr$wpei<0.188, 'nascent',
-                                  ifelse(wemp100yr$wpei>0.188 & wemp100yr$wpei<0.336, 'emerging',
-                                    ifelse(wemp100yr$wpei>0.336 & wemp100yr$wpei<0.546, 'developing',
-                                    ifelse(wemp100yr$wpei>0.546, 'established', 'none')))))
-wemp100yr$categoryvalue <- as.numeric(ifelse(wemp100yr$wpei<0.188, 1,
-                                    ifelse(wemp100yr$wpei>0.188 & wemp100yr$wpei<0.336, 2,
-                                    ifelse(wemp100yr$wpei>0.336 & wemp100yr$wpei<0.546, 3,
-                                    ifelse(wemp100yr$wpei>0.546, 4, 0)))))
+wemp100yr$category <- as.factor(ifelse(wemp100yr$wpei<=0.188, 'nascent',
+                                  ifelse(wemp100yr$wpei>=0.188 & wemp100yr$wpei<=0.336, 'emerging',
+                                    ifelse(wemp100yr$wpei>=0.336 & wemp100yr$wpei<=0.546, 'developing',
+                                    ifelse(wemp100yr$wpei>=0.546, 'established', 'none')))))
+wemp100yr$categoryvalue <- as.numeric(ifelse(wemp100yr$wpei<=0.188, 1,
+                                    ifelse(wemp100yr$wpei>=0.188 & wemp100yr$wpei<=0.336, 2,
+                                    ifelse(wemp100yr$wpei>=0.336 & wemp100yr$wpei<=0.546, 3,
+                                    ifelse(wemp100yr$wpei>=0.546, 4, 0)))))
 summary(wemp100yr)
 
 ```
@@ -190,19 +189,80 @@ head(top_ten_region)
 <!-- maps -->
 
 ```{r}
-#Category Maps
+allworld <- ggplot() +
+  # Base layer: fill countries based on category
+  geom_polygon(data = combined_map %>% filter(year == 1930), 
+               aes(x = long, y = lat, group = group, fill = category)) +
+  # Outline countries with voting rights in black
+  geom_polygon(data = combined_map %>% filter(year == 1930, voting == 1), 
+               aes(x = long, y = lat, group = group, color = "Voting Rights"), 
+               fill = NA, size = 0.25) +
+  # Outline countries without voting rights in bright yellow
+  geom_polygon(data = combined_map %>% filter(year == 1930, voting == 0), 
+               aes(x = long, y = lat, group = group, color = "No Voting Rights"), 
+               fill = NA, size = 0.25, linetype = "dashed") +
+  # Define the manual color scale for the outlines
+  scale_color_manual(name = "Voting Rights",
+                     values = c("Voting Rights" = "black", "No Voting Rights" = "red"),
+                     labels = c("Voting Rights", "No Voting Rights"),
+                     guide = guide_legend(override.aes = list(linetype = c("solid", "dashed"), size = 1))) +
+  theme_classic() +
+  labs(title = "Empowerment Category and Voting Rights in 1930", fill = "Category") +
+  guides(fill = guide_legend(title = "Category"),
+         color = guide_legend(title = "Voting Rights Status"))
+allworld
 
+allcontinents <- ggplot() +
+  # Base layer: fill countries based on category
+  geom_polygon(data = combined_map %>% filter(year == 1930, continent == "Europe"), 
+               aes(x = long, y = lat, group = group, fill = category)) +
+  # Outline countries with voting rights in black
+  geom_polygon(data = combined_map %>% filter(year == 1930, continent == "Europe", voting == 1), 
+               aes(x = long, y = lat, group = group, color = "Voting Rights"), 
+               fill = NA, size = 0.25) +
+  # Outline countries without voting rights in bright yellow
+  geom_polygon(data = combined_map %>% filter(year == 1930, voting == 0, continent == "Europe"), 
+               aes(x = long, y = lat, group = group, color = "No Voting Rights"), 
+               fill = NA, size = 0.25, linetype = "dashed") +
+  # Define the manual color scale for the outlines
+  scale_color_manual(name = "Voting Rights",
+                     values = c("Voting Rights" = "black", "No Voting Rights" = "red"),
+                     labels = c("Voting Rights", "No Voting Rights"),
+                     guide = guide_legend(override.aes = list(linetype = c("solid", "dashed"), size = 1))) +
+  theme_classic() +
+  labs(title = "Empowerment Category and Voting Rights in 1930", fill = "Category") +
+  guides(fill = guide_legend(title = "Category"),
+         color = guide_legend(title = "Voting Rights Status"))
+allcontinents
+categoriescontinents <- ggplot(data = combined_map %>% filter(continent == "Africa") %>% filter(year == 1996), aes (x = long, y = lat, group = group, fill = category)) + geom_polygon() + theme_classic() +labs(title = "Empowerment Category", fill="category")
+categoriescontinents
+votingcontinents <- ggplot(data = combined_map %>% filter(continent == "Africa") %>% filter(year == 1996), aes (x = long, y = lat, group = group, fill = voting)) + geom_polygon() + theme_classic() +labs(title = "Empowerment Category", fill="vote")
+votingcontinents
 categoriesworld <- ggplot(data = combined_map %>% filter(year == 2000), aes (x = long, y = lat, group = group, fill = category)) + geom_polygon() + theme_classic() +labs(title = "Empowerment Category", fill="category")
 categoriesworld
 
 categoriescontinents <- ggplot(data = combined_map %>% filter(continent == "Africa") %>% filter(year == 1996), aes (x = long, y = lat, group = group, fill = category)) + geom_polygon() + theme_classic() +labs(title = "Empowerment Category", fill="category")
 categoriescontinents
 
-votingworld <- ggplot(data = combined_map %>% filter(year == 1996), aes (x = long, y = lat, group = group, fill = voting)) + geom_polygon() + theme_classic() +labs(title = "Empowerment Category", fill="vote")
+votingworld <- ggplot(data = combined_map %>% filter(year == 1905), aes(x = long, y = lat, group = group, fill = factor(voting))) + 
+  geom_polygon() + 
+  theme_classic() +
+  labs(title = "Voting in 1996", fill="Voting Status") +
+  scale_fill_manual(values = c("0" = "black", "1" = "#806E88"),
+                    labels = c("0" = "No Voting", "1" = "Voting")) +
+  theme(legend.position = "right")
 votingworld
 
-votingcontinents <- ggplot(data = combined_map %>% filter(continent == "Africa") %>% filter(year == 1996), aes (x = long, y = lat, group = group, fill = voting)) + geom_polygon() + theme_classic() +labs(title = "Empowerment Category", fill="vote")
-votingcontinents
+empowermentcountry <- ggplot(data = combined_map %>% filter(year == 1912, region == "France"), aes(x = long, y = lat, group = group, fill = category)) +
+  geom_polygon() + 
+  geom_polygon(data = combined_map %>% filter(year == 1912, region == "France", voting == 1), aes(color = "Yes"), fill = NA, size = 0.25, linetype = "dashed") +
+  geom_polygon(data = combined_map %>% filter(year == 1912, region == "France", voting == 0), aes(color = "No"), fill = NA, size = 0.25) +
+  scale_fill_manual(values = c("nascent" = "#f2ab9b", "developing" = "#3b5e8c", "emerging" = "#f2b872", "established" = "#957DAD")) +
+  scale_color_manual(values = c("Yes" = "black", "No" = "red")) +
+  theme_void() +
+  labs(title = "Empowerment Category in France, 1990", fill = "Category")
+empowermentcountry
+
 ```
 
 <!-- creating a csv file of cleaned data -->
@@ -212,5 +272,6 @@ votingcontinents
 # write_csv(voting100yr, 'voting100yr.csv')
 # write_csv(analysis_map, 'analysis_map.csv')
 # write_csv(combined_map, 'combined_map.csv')
+#write_csv(combined, 'combined.csv')
 ```
 
