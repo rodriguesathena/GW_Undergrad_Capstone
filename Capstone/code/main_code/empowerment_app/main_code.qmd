@@ -14,6 +14,7 @@ library(ggplot2)
 library(maps)
 library(plotly)
 library(tidyverse)
+library(gganimate)
 library(vdemdata)
 library(countrycode)
 ```
@@ -163,27 +164,85 @@ Oceania <- filter(analysis_map, continent == "Oceania")
 <!-- WPEI Average graphs -->
 
 ```{r}
-#finding averages
-avg_wpei_region <- wemp100yr %>%
-    group_by(region) %>%
-    summarise(avg_wpei = mean(wpei, na.rm = TRUE))
-summary(avg_wpei_region)
-avg_wpei_year <- wemp100yr %>%
-    group_by(year) %>%
-    summarise(avg_wpei = mean(wpei, na.rm = TRUE))
-summary(avg_wpei_year)
+# #finding averages
+# avg_wpei_region <- wemp100yr %>%
+#     group_by(region) %>%
+#     summarise(avg_wpei = mean(wpei, na.rm = TRUE))
+# summary(avg_wpei_region)
+# avg_wpei_year <- wemp100yr %>%
+#     group_by(year) %>%
+#     summarise(avg_wpei = mean(wpei, na.rm = TRUE))
+# summary(avg_wpei_year)
+# 
+# #top ten years table
+# top_ten_years <- avg_wpei_year %>%
+#   arrange(desc(avg_wpei)) %>%
+#   slice_head(n = 10)
+# top_ten_years$year <- factor(top_ten_years$year, levels = top_ten_years$year)
+# head(top_ten_years)
+# #top ten countries table
+# top_ten_region <- avg_wpei_region %>%
+#   arrange(desc(avg_wpei)) %>%
+#   slice_head(n = 10)
+# head(top_ten_region)
+```
+<!-- Voting and WPEI Decade Analysis -->
+```{r}
+combined$year <- as.integer(combined$year)
+combined$decade <- floor(combined$year / 10) * 10
 
-#top ten years table
-top_ten_years <- avg_wpei_year %>%
-  arrange(desc(avg_wpei)) %>%
-  slice_head(n = 10)
-top_ten_years$year <- factor(top_ten_years$year, levels = top_ten_years$year)
-head(top_ten_years)
-#top ten countries table
-top_ten_region <- avg_wpei_region %>%
-  arrange(desc(avg_wpei)) %>%
-  slice_head(n = 10)
-head(top_ten_region)
+#VOTE
+first_voting_instances <- combined %>%
+  dplyr::filter(voting == 1) %>%
+  group_by(region) %>%
+  summarize(first_vote_year = min(year)) %>%
+  ungroup()
+first_voting_instances$decade <- floor(first_voting_instances$first_vote_year / 10) * 10
+votes_by_decade <- first_voting_instances %>%
+  dplyr::count(decade)
+print(votes_by_decade)
+#GRAPH
+ggplot(votes_by_decade, aes(x = as.factor(decade), y = n)) +
+  geom_bar(stat = "identity", fill = "#806E88") +
+  coord_flip() +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.title.x = element_text(size = 16, margin = margin(t = 20)),
+    axis.title.y = element_text(size = 16, margin = margin(r = 20))
+  ) +
+  labs(title = "First Instances of Women's Suffrage by Decade",
+       x = "Decade",
+       y = "Countries") +
+  scale_x_discrete(labels = function(x) paste0(x, "s"))
+#LEVELS
+grouped_combined <- combined %>%
+  group_by(decade, category) %>%
+  summarise(count = n_distinct(region), .groups = 'drop')
+#GRAPH
+ggplot(grouped_combined, aes(x = as.factor(decade), y = count, fill = category)) +
+  geom_bar(stat = "identity", position = "stack") +
+  coord_flip() +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "bottom",
+    legend.text = element_text(size = 12),
+    legend.title = element_text(size = 14),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.title.x = element_text(size = 16, margin = margin(t = 20)),
+    axis.title.y = element_text(size = 16, margin = margin(r = 20))
+  ) +
+  scale_fill_manual(values = c(
+    "nascent" = "#f2ab9b", 
+    "developing" = "#3b5e8c", 
+    "emerging" = "#f2b872", 
+    "established" = "#957DAD"
+  )) +
+  labs(title = "Empowerment Variables by Decade",
+       x = "Decade",
+       y = "Number of Countries") +
+  scale_x_discrete(labels = function(x) paste0(x, "s"))
 ```
 
 <!-- maps -->
@@ -264,7 +323,64 @@ empowermentcountry <- ggplot(data = combined_map %>% filter(year == 1912, region
 empowermentcountry
 
 ```
+<!-- animated wpei gif -->
 
+```{r}
+library(ggplot2)
+library(maps)
+library(dplyr)
+library(animation)
+
+# Loading your data (assuming 'mapwemp100yr' and 'map' are already loaded)
+years_data <- list(
+  wemp1900 = filter(mapwemp100yr, year == 1900),
+  wemp1925 = filter(mapwemp100yr, year == 1925),
+  wemp1950 = filter(mapwemp100yr, year == 1950),
+  wemp1975 = filter(mapwemp100yr, year == 1975),
+  wemp2000 = filter(mapwemp100yr, year == 2000)
+)
+map_data <- map_data("world")
+basemap <- ggplot() + 
+  geom_polygon(data = map_data, aes(x = long, y = lat, group = group), fill = "gray", color = "white")
+plot_map_for_year <- function(year_data) {
+  basemap +
+    geom_polygon(data = year_data, aes(x = long, y = lat, fill = wpei, group = group), color = "white") +
+    scale_fill_gradient(low = "#FFCC99", high = "#CC6600", name = "WPEI") +
+    labs(title = paste("Year:", unique(year_data$year))) +
+    theme_void()
+}
+liberties_map <- function(year_data) {
+  basemap +
+    geom_polygon(data = year_data, aes(x = long, y = lat, fill = liberties, group = group), color = "white") +
+    scale_fill_gradient(low = "#90EE90", high = "#006400", name = "WCLI") +
+    labs(title = paste("Year:", unique(year_data$year))) +
+    theme_void()
+}
+society_map <- function(year_data) {
+  basemap +
+    geom_polygon(data = year_data, aes(x = long, y = lat, fill = society, group = group), color = "white") +
+    scale_fill_gradient(low = "#D8BFD8", high = "#4B0082", name = "WCSPI") +
+    labs(title = paste("Year:", unique(year_data$year))) +
+    theme_void()
+}
+participation_map <- function(year_data) {
+  basemap +
+    geom_polygon(data = year_data, aes(x = long, y = lat, fill = society, group = group), color = "white") +
+    scale_fill_gradient(low = "#ADD8E6", high = "#00008B", name = "WPPI") +
+    labs(title = paste("Year:", unique(year_data$year))) +
+    theme_void()
+}
+
+
+saveGIF({
+  for(year_data in years_data) {
+    print(participation_map(year_data))
+  }
+}, movie.name = "participation_animation.gif", interval = 2, ani.width = 800, ani.height = 600)
+
+```
+
+<!-- animated empowerment levels gif -->
 <!-- creating a csv file of cleaned data -->
 
 ```{r}

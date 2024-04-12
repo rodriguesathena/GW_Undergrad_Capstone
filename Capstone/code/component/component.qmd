@@ -3,6 +3,7 @@ title: "component"
 format: html
 editor: visual
 ---
+
 <!-- installing libraries -->
 
 ```{r, message=FALSE}
@@ -72,7 +73,6 @@ basemap + geom_map(data = actualvote1975, map = vote1975, aes(long, lat, map_id 
 basemap + geom_map(data = actualvote2000, map = vote2000, aes(long, lat, map_id = region), fill = "purple")
 ```
 
-
 <!-- wpei maps -->
 
 ```{r message=False, warning=FALSE}
@@ -94,3 +94,4 @@ basemap + geom_map(data = wemp1975, map = wemp1975, aes(fill = wpei, map_id = re
 #2000 map
 basemap + geom_map(data = wemp2000, map = wemp2000, aes(fill = wpei, map_id = region))
 ```
+
