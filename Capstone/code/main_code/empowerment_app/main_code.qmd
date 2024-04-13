@@ -39,6 +39,7 @@ map$region[map$region == "Republic of Congo"] = "Republic of the Congo"
 ```{r}
 allwemp <- onlycountries %>% select(region = country_name, abbr = country_text_id, id = country_id, year = year, wpei = v2x_gender, liberties = v2x_gencl, society = v2x_gencs, participation = v2x_genpp)
 wemp100yr <- filter(allwemp, year >= 1900, year <= 2000)
+mapwemp100yr <- left_join(wemp100yr, map, by = "region")
 ```
 
 <!-- voting rights -->
@@ -51,6 +52,8 @@ voting100yr <- filter(allvoting, year >1899, year <2001)
 <!-- category breakup -->
 
 ```{r}
+quantiles <- quantile(wemp100yr$wpei, probs = c(1/4, 2/4, 3/4), na.rm = TRUE)
+quantiles
 wemp100yr[, 'category'] = NA 
 wemp100yr[, 'categoryvalue'] = NA
 # categories nascent: wpei<0.188; emerging: 0.188<wpei<0.336; developing: 0.336<wpei<0.546    established: wpei>.546
@@ -63,7 +66,27 @@ wemp100yr$categoryvalue <- as.numeric(ifelse(wemp100yr$wpei<=0.188, 1,
                                     ifelse(wemp100yr$wpei>=0.336 & wemp100yr$wpei<=0.546, 3,
                                     ifelse(wemp100yr$wpei>=0.546, 4, 0)))))
 summary(wemp100yr)
+```
+<!-- Correlation between indicators and categories --->
+```{r}
+wemp100yr <- wemp100yr %>%
+  mutate(wpei_category = case_when(
+    wpei < 0.188 ~ 'nascent',
+    wpei >= 0.188 & wpei <= 0.336 ~ 'emerging',
+    wpei > 0.336 & wpei <= 0.546 ~ 'developing',
+    wpei > 0.546 ~ 'established'
+  )) %>%
+  filter(!is.na(wpei_category))
 
+category_correlations <- wemp100yr %>%
+  group_by(wpei_category) %>%
+  summarise(
+    society_liberties_corr = ifelse(n() > 1, cor(society, liberties, use = "complete.obs"), NA),
+    society_participation_corr = ifelse(n() > 1, cor(society, participation, use = "complete.obs"), NA),
+    liberties_participation_corr = ifelse(n() > 1, cor(liberties, participation, use = "complete.obs"), NA)
+  ) %>%
+  ungroup()
+print(category_correlations)
 ```
 
 <!-- finding transition periods -->
@@ -76,15 +99,34 @@ grouped_wemp <- wemp100yr %>%
 grouped_wemp <- drop_na(grouped_wemp)
 #visualizations to determine transitions
 grouppoint <- ggplot(grouped_wemp) + geom_point(aes(x = year, y = count, color = category)) 
-groupbar <- ggplot(grouped_wemp, aes(x = year, y = count, fill = category)) + geom_bar(stat='identity', position=position_dodge()) #+ facet_wrap(.~category) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+groupbar <- ggplot(grouped_wemp, aes(x = year, y = count, fill = category)) + geom_bar(stat='identity', position=position_dodge()) + facet_wrap(.~category) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 groupbar <- ggplotly(groupbar)
+groupbar
 grouppoint <- ggplotly(grouppoint)
-#periods: nascent 1900 - 1955   developing - 1956 - 1978     established 1979 - 2000
+category_summary <- wemp100yr %>%
+  group_by(category, year) %>%
+  summarise(categoryvalue = sum(categoryvalue), .groups = 'drop')
+
+max_years <- category_summary %>%
+  group_by(category) %>%
+  slice(which.max(categoryvalue)) %>%
+  ungroup()
+
+threshold <- 0.9
+
+main_years_range <- category_summary %>%
+  group_by(category) %>%
+  filter(categoryvalue >= threshold * max(categoryvalue)) %>%
+  summarise(StartYear = min(year), EndYear = max(year), .groups = 'drop')
+
+print(max_years)
+print(main_years_range)
 ```
 
 <!-- adding transition periods to dataset-->
 
 ```{r}
+#periods: nascent 1900 - 1955   developing - 1956 - 1978     established 1979 - 2000
 periods <- filter(allwemp, year >= 1900, year <= 2000)
 periods[, 'category'] = NA 
 periods[, 'categoryvalue'] = NA
@@ -92,28 +134,23 @@ periods[, 'categoryvalue'] = NA
 periods$category <- as.factor(ifelse(periods$year>=1900 & periods$year<=1955, 'nascent',
                                   ifelse(periods$year>=1956 & periods$year<=1978, 'developing',
                                     ifelse(periods$year>=1979, 'established', 'none'))))
-periods$categoryvalue <- as.numeric(ifelse(periods$year>=1900 & periods$year<=1954, 1,
-                                  ifelse(periods$year>=1955 & periods$year<=1978, 2,
+periods$categoryvalue <- as.numeric(ifelse(periods$year>=1900 & periods$year<=1955, 1,
+                                  ifelse(periods$year>=1956 & periods$year<=1978, 2,
                                     ifelse(periods$year>=1979, 3, 0))))
 ```
 
 <!-- filtering data to compare voting rights and transition periods -->
 
 ```{r, warning=FALSE, message=FALSE}
-combined <- voting100yr
-combined[, 'category'] = NA 
-combined[, 'categoryvalue'] = NA
-combined[, 'wpei'] = NA
-combined$category <- wemp100yr$category
-combined$categoryvalue <- wemp100yr$categoryvalue
-combined$wpei <- wemp100yr$wpei
+combined <- merge(voting100yr, wemp100yr, by = c("id", "year", "abbr", "region"), all.x = TRUE)
 combined <-  combined %>%
     replace_na(list(voting = 0, category = "nascent", categoryvalue = 0))
 combined$voting <- as.numeric((as.character(combined$voting)))
 combined$voting <- ifelse(combined$voting > 0, 1, 0)
 combined <- combined %>%
   mutate(change_point = ifelse(voting == 1, "Change", "No Change"))
-combined$continent <- countrycode(combined$abbr, "wb", "continent")
+combined <- combined %>%
+  mutate(continent = countrycode(as.character(abbr), "wb", "continent"))
 votechange <- combined %>%
     arrange(region, year) %>%
     group_by(region) %>%
@@ -221,7 +258,7 @@ grouped_combined <- combined %>%
   group_by(decade, category) %>%
   summarise(count = n_distinct(region), .groups = 'drop')
 #GRAPH
-ggplot(grouped_combined, aes(x = as.factor(decade), y = count, fill = category)) +
+colorgraph <- ggplot(grouped_combined, aes(x = as.factor(decade), y = count, fill = category)) +
   geom_bar(stat = "identity", position = "stack") +
   coord_flip() +
   theme_minimal(base_size = 14) +
@@ -242,25 +279,24 @@ ggplot(grouped_combined, aes(x = as.factor(decade), y = count, fill = category))
   labs(title = "Empowerment Variables by Decade",
        x = "Decade",
        y = "Number of Countries") +
-  scale_x_discrete(labels = function(x) paste0(x, "s"))
+  scale_x_discrete(labels = function(x) paste0(x, "s")) +
+  facet_wrap(~category)
+intercolor <- ggplotly(colorgraph)
+intercolor
 ```
 
 <!-- maps -->
 
 ```{r}
 allworld <- ggplot() +
-  # Base layer: fill countries based on category
   geom_polygon(data = combined_map %>% filter(year == 1930), 
                aes(x = long, y = lat, group = group, fill = category)) +
-  # Outline countries with voting rights in black
   geom_polygon(data = combined_map %>% filter(year == 1930, voting == 1), 
                aes(x = long, y = lat, group = group, color = "Voting Rights"), 
                fill = NA, size = 0.25) +
-  # Outline countries without voting rights in bright yellow
   geom_polygon(data = combined_map %>% filter(year == 1930, voting == 0), 
                aes(x = long, y = lat, group = group, color = "No Voting Rights"), 
                fill = NA, size = 0.25, linetype = "dashed") +
-  # Define the manual color scale for the outlines
   scale_color_manual(name = "Voting Rights",
                      values = c("Voting Rights" = "black", "No Voting Rights" = "red"),
                      labels = c("Voting Rights", "No Voting Rights"),
@@ -272,18 +308,14 @@ allworld <- ggplot() +
 allworld
 
 allcontinents <- ggplot() +
-  # Base layer: fill countries based on category
   geom_polygon(data = combined_map %>% filter(year == 1930, continent == "Europe"), 
                aes(x = long, y = lat, group = group, fill = category)) +
-  # Outline countries with voting rights in black
   geom_polygon(data = combined_map %>% filter(year == 1930, continent == "Europe", voting == 1), 
                aes(x = long, y = lat, group = group, color = "Voting Rights"), 
                fill = NA, size = 0.25) +
-  # Outline countries without voting rights in bright yellow
   geom_polygon(data = combined_map %>% filter(year == 1930, voting == 0, continent == "Europe"), 
                aes(x = long, y = lat, group = group, color = "No Voting Rights"), 
                fill = NA, size = 0.25, linetype = "dashed") +
-  # Define the manual color scale for the outlines
   scale_color_manual(name = "Voting Rights",
                      values = c("Voting Rights" = "black", "No Voting Rights" = "red"),
                      labels = c("Voting Rights", "No Voting Rights"),
@@ -331,7 +363,6 @@ library(maps)
 library(dplyr)
 library(animation)
 
-# Loading your data (assuming 'mapwemp100yr' and 'map' are already loaded)
 years_data <- list(
   wemp1900 = filter(mapwemp100yr, year == 1900),
   wemp1925 = filter(mapwemp100yr, year == 1925),
