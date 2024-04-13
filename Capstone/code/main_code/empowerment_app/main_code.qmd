@@ -103,24 +103,31 @@ groupbar <- ggplot(grouped_wemp, aes(x = year, y = count, fill = category)) + ge
 groupbar <- ggplotly(groupbar)
 groupbar
 grouppoint <- ggplotly(grouppoint)
+# Summarize by category and year
 category_summary <- wemp100yr %>%
   group_by(category, year) %>%
   summarise(categoryvalue = sum(categoryvalue), .groups = 'drop')
 
+# Find the max category value for each category
 max_years <- category_summary %>%
   group_by(category) %>%
-  slice(which.max(categoryvalue)) %>%
-  ungroup()
+  summarise(max_value = max(categoryvalue), .groups = 'drop')
 
-threshold <- 0.9
+# Define thresholds
+thresholds <- c(0.9, 0.8, 0.75)
 
-main_years_range <- category_summary %>%
-  group_by(category) %>%
-  filter(categoryvalue >= threshold * max(categoryvalue)) %>%
-  summarise(StartYear = min(year), EndYear = max(year), .groups = 'drop')
+# Function to calculate main years range for each threshold
+calculate_main_years_range <- function(threshold) {
+  category_summary %>%
+    inner_join(max_years, by = "category") %>%
+    group_by(category) %>%
+    filter(categoryvalue >= max_value * threshold) %>%
+    summarise(StartYear = min(year), EndYear = max(year), .groups = 'drop')
+}
 
-print(max_years)
-print(main_years_range)
+# Apply function for each threshold
+results <- lapply(thresholds, calculate_main_years_range)
+print(results)
 ```
 
 <!-- adding transition periods to dataset-->

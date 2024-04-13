@@ -15,14 +15,27 @@ ui <- fluidPage(
         body {
             font-family: Georgia , serif;
         }
+      .centered-table {
+        margin-left: auto;
+        margin-right: auto;
+        border-collapse: collapse;
+      }
+      .centered-table, .centered-table th, .centered-table td {
+        border: 1px solid black;
+        padding: 8px;
+        text-align: center;
+      }
+      .centered-table th {
+        border-bottom: 2px solid black;
+      }
     ")),
   navbarPage("Tracking Women's Empowerment",
                  tabPanel("Overview",
                           tabsetPanel(type = "tabs",
                                       tabPanel("Background", uiOutput("infoText")),
-                                      tabPanel("Women's Political Empowerment Index", uiOutput("wpeiText")),
-                                      tabPanel("Calculating Empowerment", uiOutput("empowermentLevelsText")),
-                                      tabPanel("Insights and Analysis", uiOutput("analysisText")),
+                                      tabPanel("Calculating Empowerment Categories", uiOutput("levelsText")),
+                                      tabPanel("Calculating Empowerment Periods", uiOutput("periodsText")),
+                                      tabPanel("Significance of Suffrage", uiOutput("suffrageText")),
                                       tabPanel("Further Research", uiOutput("furtherText"))
                           )
                  ),
@@ -151,8 +164,91 @@ server <- function(input, output, session) {
             <p style="text-indent: 40px;">Takes into Account: Power distribution by gender, Political position representation, Presence of women in legislature</p>
             <img src="participation_animation.gif" style="display: block; margin: auto;">
     ') })
-  output$empowermentLevelsText <- renderUI({"Empowerment Levels."})    
-  output$analysisText <- renderUI({ "Insights and analysis content." })
+  output$levelsText <- renderUI({
+    HTML('
+        <h3 style="text-align: center; font-weight: bold; text-decoration: underline;">Calculating Empowerment Categories</h3>
+        <h4 style="font-weight: bold; font-style: italic;">Finding Split Points</h4>
+            <p style="text-indent: 20px;">The split points are the points in the WPEI where the data can be broken into similar groups. These split points were found using the Quantile Method which allowed a category value to be added to the data created through grouping based on quantiles. The original idea was to create three empowerment categories to showcase a beginning, middle, and end, however, this distorted my data by overlooking nations with higher WPEIs. Eventually, I decided to include an emerging category which further splits the “middle” empowerment into two, an emerging and a developing. The expansion into four categories provides a broader understanding of empowerment preventing the deflation of newly formed and inflation of existing countries.</p>
+        <h4 style="font-weight: bold; font-style: italic;">Quantiles</h4>
+            <table class="centered-table">
+            <tr>
+                <th colspan="2" style="text-align: center;"> Category Range</th>
+            </tr>
+            <tr>
+                <td>Nascent</td>
+                <td>WPEI < 0.188</td>
+            </tr>
+            <tr>
+                <td>Emerging</td>
+                <td>0.188 < WPEI < 0.336</td>
+            </tr>
+            <tr>
+                <td>Developing</td>
+                <td>0.336 < WPEI < 0.546</td>
+            </tr>
+            <tr>
+                <td>Established</td>
+                <td>WPEI > 0.546</td>
+            </tr>
+            </table>
+        <h4 style="font-weight: bold; font-style: italic;">Correlation of Indicators with Imposed Categories</h4>
+            <p style="text-indent: 20px;">Once the overall Index was broken down into these categories, more information on the relationship and impact of the sub-indicators could be found Correlation tests for a combination of the sub-indicators across the WPEI categories were performed with the results below.</p>
+              <table class="centered-table">
+              <tr>
+                <th colspan="4" style="text-align: center;">Category Society&Liberties Society&Participation Liberties&Participation</th>
+              </tr>
+              <tr>
+                <td>Nascent</td>
+                <td>-0.07942348</td>
+                <td>0.05531654</td>
+                <td>-0.1336073</td>
+              </tr>
+              <tr>
+                <td>Emerging</td>
+                <td>-0.22664845</td>
+                <td>-0.10028010</td>
+                <td>-0.6189087</td>
+              </tr>
+              <tr>
+                <td>Developing</td>
+                <td>-0.7360711</td>
+                <td>-0.09743562</td>
+                <td>-0.6376153</td>
+              </tr>
+              <tr>
+                <td>Established</td>
+                <td>0.43980447</td>
+                <td>0.34631430</td>
+                <td>-0.1018835</td>
+              </tr>
+              </table>
+        <h4 style="font-weight: bold; font-style: italic;">Analysis Key Points</h4>
+          <h5 style="font-weight: bold; font-style: italic;text-indent: 20px;">Nascent Category</h5>
+              <p style="text-indent: 40px;">Overall, there is no significant relationship between the sub-indicators in the nascent category.</p>
+              <p style="text-indent: 40px;">The weak correlation between values of Civil Society and Civil Liberties, along with Civil Society and Political Participation, suggests no significant relationship between these sub-indicators.</p>
+              <p style="text-indent: 40px;">The weak negative correlation value between Civil Liberties and Political Participation signifies an inverse relationship between the two sub-indicators</p>
+          <h5 style="font-weight: bold; font-style: italic;text-indent: 20px;">Emerging Category</h5>
+              <p style="text-indent: 40px;">The weak negative correlation between Civil Society Participation and Civil Liberties indicates a decrease in civil participation as greater liberties are granted or vice versa.</p>
+              <p style="text-indent: 40px;">There is little to no relationship between Civil Society Participation and Political Participation in countries of this category level.</p>
+              <p style="text-indent: 40px;">The moderate negative correlation value between Civil Liberties and Political Participation suggests an inverse relationship between the two sub-indicators.</p>
+          <h5 style="font-weight: bold; font-style: italic;text-indent: 20px;">Developing Category</h5>
+              <p style="text-indent: 40px;">The moderate negative correlation suggests that as Civil Liberties increase, Civil Society Participation may decrease showing a tradeoff relationship similar to the emerging category.</p>
+              <p style="text-indent: 40px;">The weak negative correlation of Civil Society and Political Participation indicates little to no relationship or significance between the two sub-indicators.</p>
+              <p style="text-indent: 40px;">The moderate negative correlation between Civil Liberties and Political Participation suggests an inverse relationship where improvements in one result in a decrease in the other.</p>
+          <h5 style="font-weight: bold; font-style: italic;text-indent: 20px;">Established Category</h5>
+              <p style="text-indent: 40px;">The moderate positive correlation between Civil Society and Civil Liberties showcases a positive relationship between the two sub-indicators, When one increases the other generally increases as well.</p>
+              <p style="text-indent: 40px;">The weak but positive correlation of Civil Society and Political Participation also suggests a relationship in which an increase in one typically results in a small but significant increase in the other.</p>
+              <p style="text-indent: 40px;">The weak negative relationship between Civil Liberties and Political Participation suggests the two sub-indicators diverge, however, due to the low strength, there could be other factors that may influence this trend.</p>
+          <h5 style="font-weight: bold; font-style: italic;text-indent: 20px;">Key Take-Aways</h5>
+              <p style="text-indent: 40px;">Countries in the Nascent Period saw a decrease in their political participation as civil liberties increased (or vice versa). This point could be further explored in the eyes of suffrage as this is the period of greatest change in voting rights worldwide.</p>
+              <p style="text-indent: 40px;">Countries in the Emerging and Developing Countries see a tradeoff between liberties and participation. This can be seen as a decrease in one as the other increases. </p>
+              <p style="text-indent: 40px;">Countries in the Established category see greater societal participation improvements coupled with increased civil liberties and political participation. This can be understood as better access to participate when granted more freedoms and political power.</p>
+              <p style="text-indent: 40px;">All significant relationships show a downward trend in a sub-indicator once granted greater freedoms showing the cyclical nature of women&#39;s rights initiatives.</p>
+              <p style="text-indent: 40px;">It is important to keep in mind that Correlation does not Imply Causation, the significance of these numbers requires greater data and context to understand their complex relationship, and there are other factors not included in these correlation tests.</p>
+    ')
+  })    
+  output$periodsText <- renderUI({"Empowerment Periods"})    
+  output$suffrageText <- renderUI({ "Suffrage Insights" })
   output$furtherText <- renderUI({
     HTML('
         <h3 style="text-align: center; font-weight: bold; text-decoration: underline;">Three Different Research Paths</h3>
