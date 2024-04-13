@@ -15,6 +15,7 @@ library(maps)
 library(plotly)
 library(tidyverse)
 library(gganimate)
+library(scales)
 library(vdemdata)
 library(countrycode)
 ```
@@ -47,6 +48,8 @@ mapwemp100yr <- left_join(wemp100yr, map, by = "region")
 ```{r}
 allvoting <- onlycountries %>% select(region = country_name, abbr = country_text_id, id = country_id, year = year, voting = v2fsuffrage)
 voting100yr <- filter(allvoting, year >1899, year <2001)
+voting100yr <- voting100yr %>%
+  mutate(continent = countrycode(as.character(abbr), "wb", "continent"))
 ```
 
 <!-- category breakup -->
@@ -97,26 +100,39 @@ grouped_wemp <- wemp100yr %>%
   group_by(year, category) %>%
   summarise(count = n(), .groups = 'drop')
 grouped_wemp <- drop_na(grouped_wemp)
-#visualizations to determine transitions
-grouppoint <- ggplot(grouped_wemp) + geom_point(aes(x = year, y = count, color = category)) 
-groupbar <- ggplot(grouped_wemp, aes(x = year, y = count, fill = category)) + geom_bar(stat='identity', position=position_dodge()) + facet_wrap(.~category) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-groupbar <- ggplotly(groupbar)
-groupbar
-grouppoint <- ggplotly(grouppoint)
-# Summarize by category and year
+#GRAPH VISUAL
+# grouppoint <- ggplot(grouped_wemp) + geom_point(aes(x = year, y = count, color = category)) + scale_fill_manual(values = c(
+#     "nascent" = "#f2ab9b", 
+#     "developing" = "#3b5e8c", 
+#     "emerging" = "#f2b872", 
+#     "established" = "#957DAD"
+#   ))
+# grouppoint <- ggplotly(grouppoint)
+# grouppoint
+allbar <- ggplot(grouped_wemp, aes(x = year, y = count, fill = category)) + geom_bar(stat='identity', position=position_dodge()) +   scale_fill_manual(values = c(
+    "nascent" = "#f2ab9b", 
+    "developing" = "#3b5e8c", 
+    "emerging" = "#f2b872", 
+    "established" = "#957DAD"
+  )) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+facetbar <- ggplot(grouped_wemp, aes(x = year, y = count, fill = category)) + geom_bar(stat='identity', position=position_dodge()) +   scale_fill_manual(values = c(
+    "nascent" = "#f2ab9b", 
+    "developing" = "#3b5e8c", 
+    "emerging" = "#f2b872", 
+    "established" = "#957DAD"
+  )) + facet_wrap(.~category) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+allbar <- ggplotly(groupbar)
+facetbar <- ggplotly(facetbar)
+allbar
+facetbar
+#THRESHOLD CALCULATION
 category_summary <- wemp100yr %>%
   group_by(category, year) %>%
   summarise(categoryvalue = sum(categoryvalue), .groups = 'drop')
-
-# Find the max category value for each category
 max_years <- category_summary %>%
   group_by(category) %>%
   summarise(max_value = max(categoryvalue), .groups = 'drop')
-
-# Define thresholds
 thresholds <- c(0.9, 0.8, 0.75)
-
-# Function to calculate main years range for each threshold
 calculate_main_years_range <- function(threshold) {
   category_summary %>%
     inner_join(max_years, by = "category") %>%
@@ -124,8 +140,6 @@ calculate_main_years_range <- function(threshold) {
     filter(categoryvalue >= max_value * threshold) %>%
     summarise(StartYear = min(year), EndYear = max(year), .groups = 'drop')
 }
-
-# Apply function for each threshold
 results <- lapply(thresholds, calculate_main_years_range)
 print(results)
 ```
@@ -291,7 +305,40 @@ colorgraph <- ggplot(grouped_combined, aes(x = as.factor(decade), y = count, fil
 intercolor <- ggplotly(colorgraph)
 intercolor
 ```
+<!-- voting analysis -->
+```{r, warning = FALSE}
+grouped_vote <- voting100yr %>%
+  group_by(year, continent) %>%
+  summarise(voting = mean(voting, na.rm = TRUE),
+            .groups = "drop")
+grouped_vote <- drop_na(grouped_vote)
+max_voting <- max(grouped_vote$voting, na.rm = TRUE)
 
+# Plotting the trends for Voting with adjusted labels
+continent_vote <- ggplot(grouped_vote, aes(x = year, y = voting, group = continent, color = continent)) +
+  geom_line(size = 1.2) + # Increase line thickness
+  geom_point() + # Add data points
+  annotate("rect", xmin = 1900, xmax = 1955, ymin = -Inf, ymax = Inf, fill = "gray", alpha = 0.2) +
+  annotate("rect", xmin = 1956, xmax = 1978, ymin = -Inf, ymax = Inf, fill = "gray", alpha = 0.2) +
+  annotate("rect", xmin = 1979, xmax = 2000, ymin = -Inf, ymax = Inf, fill = "gray", alpha = 0.2) +
+  annotate("text", x = 1927.5, y = max_voting * 1.1, label = "Nascent", size = 5, hjust = 0.5, color = "black") +
+  annotate("text", x = 1967, y = max_voting * 1.1, label = "Developing", size = 5, hjust = 0.5, color = "black") +
+  annotate("text", x = 1989.5, y = max_voting * 1.1, label = "Established", size = 5, hjust = 0.5, color = "black") +
+  scale_x_continuous(breaks = seq(min(grouped_vote$year), max(grouped_vote$year), by = 10)) +
+  scale_color_manual(values = c("Africa" = "#A7C7E7", 
+                                "Americas" = "#E7A7A7", 
+                                "Asia" = "#A7E7D6", 
+                                "Europe" = "#D6A7E7",
+                                "Oceania" = "#E7D5A7", 
+                                "NA" = "#D3D3D3")) +
+  labs(title = "Average Voting Rate by Continent Over Time",
+       x = "Year",
+       y = "Average Voting Rate") +
+  theme_minimal() +
+  theme(legend.position = "right") + # Add the legend back
+  ylim(0, max_voting * 1.2)
+continent_vote
+```
 <!-- maps -->
 
 ```{r}
@@ -427,5 +474,7 @@ saveGIF({
 # write_csv(analysis_map, 'analysis_map.csv')
 # write_csv(combined_map, 'combined_map.csv')
 #write_csv(combined, 'combined.csv')
+#write_csv(grouped_vote, 'grouped_vote.csv')
+#write_csv(grouped_wemp, 'grouped_wemp.csv')
 ```
 

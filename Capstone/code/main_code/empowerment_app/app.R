@@ -7,116 +7,146 @@ library(DT)
 
 
 combined_map <- read_csv("combined_map.csv", show_col_types = FALSE)
+wemp100yr <- read_csv("wemp100yr.csv", show_col_types = FALSE)
+grouped_vote <- read_csv("grouped_vote.csv", show_col_types = FALSE)
+grouped_wemp <- read_csv("grouped_wemp.csv", show_col_types = FALSE)
 combined <- read_csv("combined.csv", show_col_types = FALSE)
 continent_choices <- c("NA" = "Please select...", unique(combined_map$continent))
 
 ui <- fluidPage(
   tags$style(HTML("
-        body {
-            font-family: Georgia , serif;
-        }
-      .centered-table {
-        margin-left: auto;
-        margin-right: auto;
-        border-collapse: collapse;
-      }
-      .centered-table, .centered-table th, .centered-table td {
-        border: 1px solid black;
-        padding: 8px;
-        text-align: center;
-      }
-      .centered-table th {
-        border-bottom: 2px solid black;
-      }
-    ")),
-  navbarPage("Tracking Women's Empowerment",
-                 tabPanel("Overview",
-                          tabsetPanel(type = "tabs",
-                                      tabPanel("Background", uiOutput("infoText")),
-                                      tabPanel("Calculating Empowerment Categories", uiOutput("levelsText")),
-                                      tabPanel("Calculating Empowerment Periods", uiOutput("periodsText")),
-                                      tabPanel("Significance of Suffrage", uiOutput("suffrageText")),
-                                      tabPanel("Further Research", uiOutput("furtherText"))
-                          )
-                 ),
-                 tabPanel("Whole World",
-                          tabsetPanel(type = "tabs",
-                                      tabPanel("Levels of Empowerment",
-                                               sliderInput("yearInput", "Year:", 
-                                                           min = min(combined_map$year), max = max(combined_map$year), value = 1900, step = 1),
-                                               textOutput("levelsworldMapDescription"),
-                                               plotOutput("levelsworldMapOutput")
-                                      ), 
-                                      tabPanel("Right to Vote",
-                                               sliderInput("voteYearInput", "Year:",  
-                                                           min = min(combined_map$year), max = max(combined_map$year), value = 1900, step = 1),
-                                               textOutput("voteworldMapDescription"),
-                                               plotOutput("voteworldMapOutput")
-                                      ), 
-                                      tabPanel("Empowerment and Voting",
-                                               sliderInput("allYearInput", "Year:",  
-                                                           min = min(combined_map$year), max = max(combined_map$year), value = 1900, step = 1),
-                                               textOutput("allworldMapDescription"),
-                                               plotOutput("allworldMapOutput")
-                                      ),
-                                      tabPanel("World Data",
-                                               DTOutput("worldDataTable"),
-                                               downloadButton("downloadWorldData", "Download World Data")
-                                      )
-                          )
-                 ),
-                 tabPanel("By Continent",
-                          tabsetPanel(type = "tabs",
-                                      tabPanel("Levels of Empowerment",
-                                               selectInput("continentSelection", "Select Continent:",
-                                                           choices = c("Americas", "Europe", "Africa", "Asia", "Oceania")),
-                                               sliderInput("continentYearInput", "Year:",  
-                                                           min = min(combined_map$year), max = max(combined_map$year), value = 1900, step = 1),
-                                               textOutput("levelscontinentMapDescription"),
-                                               plotOutput("levelscontinentMapOutput")
-                                      ), 
-                                      tabPanel("Right to Vote",
-                                               selectInput("voteContinentSelection", "Select Continent:", 
-                                                           choices = c("Americas", "Europe", "Africa", "Asia", "Oceania")),
-                                               sliderInput("voteContinentYearInput", "Year:", # 
-                                                           min = min(combined_map$year), max = max(combined_map$year), value = 1900, step = 1),
-                                               textOutput("votecontinentMapDescription"),
-                                               plotOutput("votecontinentMapOutput")
-                                      ), 
-                                      tabPanel("Empowerment and Voting",
-                                               selectInput("allContinentSelection", "Select Continent:", 
-                                                           choices = c("Americas", "Europe", "Africa", "Asia", "Oceania")),
-                                               sliderInput("allContinentYearInput", "Year:", # 
-                                                           min = min(combined_map$year), max = max(combined_map$year), value = 1900, step = 1),
-                                               textOutput("allcontinentDescription"),
-                                               plotOutput("allcontinentOutput")
-                                      ),
-                                      tabPanel("Continent Data",
-                                               DTOutput("continentDataTable"),
-                                               downloadButton("downloadContinentData", "Download Continent Data")
-                                      )
-                          )
-                 ),
-                 tabPanel("By Country",
-                          tabsetPanel(type = "tabs",
-                                      tabPanel("Country Map",
-                                               selectInput("continentSelect", "Select Continent:", choices = continent_choices),
-                                               uiOutput("countrySelectUI"),
-                                               sliderInput("yearInput", "Select Year:", min = min(combined_map$year), max = max(combined_map$year), value = 1900),
-                                               plotOutput("countryMapOutput")
-                                      ),
-                                      tabPanel("Country Data", 
-                                               DTOutput("countryDataTable"),
-                                               downloadButton("downloadCountryData", "Download Country Data")
-                                      )
-                          
-                          )
-                 )
+    body {
+      font-family: Georgia, serif;
+    }
+    .centered-table {
+      margin-left: auto;
+      margin-right: auto;
+      border-collapse: collapse;
+    }
+    .centered-table, .centered-table th, .centered-table td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: center;
+    }
+    .centered-table th {
+      border-bottom: 2px solid black;
+    }
+  ")),
+  navbarPage(
+    "Tracking Women's Empowerment",
+    tabPanel("Overview",
+             tabsetPanel(type = "tabs",
+                         tabPanel("Background", 
+                                  uiOutput("infoText")
+                         ),
+                         tabPanel("Calculating Empowerment Categories", 
+                                  uiOutput("levelsText")
+                         ),
+                         tabPanel("Calculating Empowerment Periods", 
+                                  uiOutput("periodsText"),
+                                  fluidRow(
+                                    column(6, 
+                                           plotlyOutput("allGraph", height = "400px")
+                                    ),
+                                    column(6, 
+                                           plotlyOutput("facetedGraph", height = "400px")
+                                    )
+                                  ),
+                                  uiOutput("thresholdsText"),
+                                  uiOutput("thresholdControls"),
+                                  DTOutput("resultsTable"),
+                                  uiOutput("periodscontinuedText")
+                         ),
+                         tabPanel("Significance of Suffrage", 
+                                  uiOutput("suffrageText"),
+                                  plotOutput("decadesuffrageOutput"),
+                                  uiOutput("suffragecontinuedText"),
+                                  plotOutput("continentsuffrageOutput")
+                         ),
+                         tabPanel("Further Research", 
+                                  uiOutput("furtherText")
+                         )
+             )
+    ),
+             tabPanel("Whole World",
+                      tabsetPanel(type = "tabs",
+                                  tabPanel("Levels of Empowerment",
+                                           sliderInput("yearInput", "Year:",
+                                                       min = min(combined_map$year), max = max(combined_map$year), value = 1900, step = 1),
+                                           textOutput("levelsworldMapDescription"),
+                                           plotOutput("levelsworldMapOutput")
+                                  ),
+                                  tabPanel("Right to Vote",
+                                           sliderInput("voteYearInput", "Year:",
+                                                       min = min(combined_map$year), max = max(combined_map$year), value = 1900, step = 1),
+                                           textOutput("voteworldMapDescription"),
+                                           plotOutput("voteworldMapOutput")
+                                  ),
+                                  tabPanel("Empowerment and Voting",
+                                           sliderInput("allYearInput", "Year:",
+                                                       min = min(combined_map$year), max = max(combined_map$year), value = 1900, step = 1),
+                                           textOutput("allworldMapDescription"),
+                                           plotOutput("allworldMapOutput")
+                                  ),
+                                  tabPanel("World Data",
+                                           DTOutput("worldDataTable"),
+                                           downloadButton("downloadWorldData", "Download World Data")
+                                  )
+                      )
+             ),
+             tabPanel("By Continent",
+                      tabsetPanel(type = "tabs",
+                                  tabPanel("Levels of Empowerment",
+                                           selectInput("continentSelection", "Select Continent:",
+                                                       choices = c("Americas", "Europe", "Africa", "Asia", "Oceania")),
+                                           sliderInput("continentYearInput", "Year:",
+                                                       min = min(combined_map$year), max = max(combined_map$year), value = 1900, step = 1),
+                                           textOutput("levelscontinentMapDescription"),
+                                           plotOutput("levelscontinentMapOutput")
+                                  ),
+                                  tabPanel("Right to Vote",
+                                           selectInput("voteContinentSelection", "Select Continent:",
+                                                       choices = c("Americas", "Europe", "Africa", "Asia", "Oceania")),
+                                           sliderInput("voteContinentYearInput", "Year:",
+                                                       min = min(combined_map$year), max = max(combined_map$year), value = 1900, step = 1),
+                                           textOutput("votecontinentMapDescription"),
+                                           plotOutput("votecontinentMapOutput")
+                                  ),
+                                  tabPanel("Empowerment and Voting",
+                                           selectInput("allContinentSelection", "Select Continent:",
+                                                       choices = c("Americas", "Europe", "Africa", "Asia", "Oceania")),
+                                           sliderInput("allContinentYearInput", "Year:",
+                                                       min = min(combined_map$year), max = max(combined_map$year), value = 1900, step = 1),
+                                           textOutput("allcontinentDescription"),
+                                           plotOutput("allcontinentOutput")
+                                  ),
+                                  tabPanel("Continent Data",
+                                           DTOutput("continentDataTable"),
+                                           downloadButton("downloadContinentData", "Download Continent Data")
+                                  )
+                      )
+             ),
+             tabPanel("By Country",
+                      tabsetPanel(type = "tabs",
+                                  tabPanel("Country Map",
+                                           selectInput("continentSelect", "Select Continent:", choices = continent_choices),
+                                           uiOutput("countrySelectUI"),
+                                           sliderInput("yearInput", "Select Year:", min = min(combined_map$year), max = max(combined_map$year), value = 1900),
+                                           plotOutput("countryMapOutput")
+                                  ),
+                                  tabPanel("Country Data",
+                                           DTOutput("countryDataTable"),
+                                           downloadButton("downloadCountryData", "Download Country Data")
+                                  )
+                      )
+             )
+  )
 )
-)
+
 
 
 server <- function(input, output, session) {
+#INFORMATION TAB
   output$infoText <- renderUI({
     HTML('
         <h3 style="text-align: center; font-weight: bold; text-decoration: underline;">Background</h3>
@@ -145,6 +175,7 @@ server <- function(input, output, session) {
 
     ')
   })
+# WPEI TAB
   output$wpeiText <- renderUI({     
       HTML('
         <h3 style="text-align: center; font-weight: bold; text-decoration: underline;">Women&#39;s Political Empowerment Index</h3>
@@ -164,12 +195,13 @@ server <- function(input, output, session) {
             <p style="text-indent: 40px;">Takes into Account: Power distribution by gender, Political position representation, Presence of women in legislature</p>
             <img src="participation_animation.gif" style="display: block; margin: auto;">
     ') })
+# CALCULATING EMPOERMENT CATEGORIES TAB
   output$levelsText <- renderUI({
     HTML('
         <h3 style="text-align: center; font-weight: bold; text-decoration: underline;">Calculating Empowerment Categories</h3>
         <h4 style="font-weight: bold; font-style: italic;">Finding Split Points</h4>
             <p style="text-indent: 20px;">The split points are the points in the WPEI where the data can be broken into similar groups. These split points were found using the Quantile Method which allowed a category value to be added to the data created through grouping based on quantiles. The original idea was to create three empowerment categories to showcase a beginning, middle, and end, however, this distorted my data by overlooking nations with higher WPEIs. Eventually, I decided to include an emerging category which further splits the “middle” empowerment into two, an emerging and a developing. The expansion into four categories provides a broader understanding of empowerment preventing the deflation of newly formed and inflation of existing countries.</p>
-        <h4 style="font-weight: bold; font-style: italic;">Quantiles</h4>
+        <h4 style="font-weight: bold; font-style: italic;">Determined Categories</h4>
             <table class="centered-table">
             <tr>
                 <th colspan="2" style="text-align: center;"> Category Range</th>
@@ -247,8 +279,164 @@ server <- function(input, output, session) {
               <p style="text-indent: 40px;">It is important to keep in mind that Correlation does not Imply Causation, the significance of these numbers requires greater data and context to understand their complex relationship, and there are other factors not included in these correlation tests.</p>
     ')
   })    
-  output$periodsText <- renderUI({"Empowerment Periods"})    
-  output$suffrageText <- renderUI({ "Suffrage Insights" })
+# CALCULATING EMPOWERMENT PERIODS TAB
+  output$periodsText <- renderUI({
+    HTML('
+      <h3 style="text-align: center; font-weight: bold; text-decoration: underline;">Calculating Empowerment Periods</h3>
+      <p style="text-indent: 20px;">With empowerment categories calculated each category’s dominating years can be found which, when put together, shows the Empowerment Periods for the 20th century. This was found using two methods: graph visuals and threshold calculations.</p>
+      <h5 style="font-weight: bold; font-style: italic;text-indent: 20px;">Interactive Graph</h5>
+      <p style="text-indent: 40px;">This graph was created by using category counts for each year. The peak years represent the height of that category’s period and the range can be determined through the upward and downward trends in relation to the other categories. Below are both the combined and separated empowerment graphs that show the trends of empowerment categories.</p>
+    ')
+  })
+  output$allGraph <- renderPlotly({
+    allbar <- ggplot(grouped_wemp, aes(x = year, y = count, fill = category)) + geom_bar(stat='identity', position=position_dodge()) +   scale_fill_manual(values = c(
+      "nascent" = "#f2ab9b", 
+      "developing" = "#3b5e8c", 
+      "emerging" = "#f2b872", 
+      "established" = "#957DAD"
+    )) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+    ggplotly(allbar)
+  })
+  output$facetedGraph <- renderPlotly({
+    facetbar <- ggplot(grouped_wemp, aes(x = year, y = count, fill = category)) +
+      geom_bar(stat='identity', position=position_dodge()) +
+      facet_wrap(.~category) +
+      scale_fill_manual(values = c(
+        "nascent" = "#f2ab9b", 
+        "developing" = "#3b5e8c", 
+        "emerging" = "#f2b872", 
+        "established" = "#957DAD"
+      )) +
+      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+    ggplotly(facetbar)
+  })
+  output$thresholdsText <- renderUI({
+    HTML('
+      <h5 style="font-weight: bold; font-style: italic;text-indent: 20px;">Threshold Calculation</h5>
+      <p style="text-indent: 40px;">To confirm the visual findings threshold calculations at 75%, 80%, and 90% were calculated and evaluated to find an exact range of years. The higher the threshold the more selective the parameters for category consideration are. Ultimately, the 90% threshold was leaned heavily on when determining year ranges as it was stricter in its criteria for inclusion. There was still influence by the results of the other calculations when determining category ranges to better smooth the data over time.</p>
+    ')
+  })
+  output$thresholdControls <- renderUI({
+    selectInput("thresholdInput", "Select Threshold:",
+                choices = c("90%" = 0.9, "80%" = 0.8, "75%" = 0.75),
+                selected = 0.9)
+  })
+  observeEvent(input$thresholdInput, {
+    threshold <- as.numeric(input$thresholdInput)
+    results <- calculate_main_years_range(threshold)
+    output$resultsTable <- renderDT({
+      datatable(results, options = list(
+        dom = 't',  # Only display the table
+        searching = FALSE,  # No search box
+        paging = FALSE ))
+    })
+  })
+  calculate_main_years_range <- function(threshold) {
+    category_summary <- wemp100yr %>%
+      group_by(category, year) %>%
+      summarise(categoryvalue = sum(categoryvalue), .groups = 'drop')
+    
+    max_years <- category_summary %>%
+      group_by(category) %>%
+      summarise(max_value = max(categoryvalue), .groups = 'drop')
+    
+    category_summary %>%
+      inner_join(max_years, by = "category") %>%
+      group_by(category) %>%
+      filter(categoryvalue >= max_value * threshold) %>%
+      summarise(StartYear = min(year), EndYear = max(year), .groups = 'drop')
+  }
+  output$periodscontinuedText <- renderUI({
+    HTML('
+      <h4 style="font-weight: bold; font-style: italic;">Condensing Categories</h4>
+      <p style="text-indent: 20px;">Both methods showed the emerging category restrained with little majority compared to the other categories. With the threshold graphs, one can see the significant overlaps of the emerging category into the nascent and developing categories. Because of this, it was decided to condense the emerging category for the determination of Empowerment Periods resulting in the previously desired three-period analysis. The emerging period was still kept for the other areas of this project as the three quantile distributions significantly weekend the overall category breakdown. With this condensation, the Empowerment Periods were determined.</p>
+            <table class="centered-table">
+            <tr>
+                <th colspan="2" style="text-align: center;"> Category Years</th>
+            </tr>
+            <tr>
+                <td>Nascent</td>
+                <td>1900 - 1955</td>
+            </tr>
+            <tr>
+                <td>Developing</td>
+                <td>1956 - 1978</td>
+            </tr>
+            <tr>
+                <td>Established</td>
+                <td>1979 - 2000</td>
+            </tr>
+            </table>         
+         ')
+  })    
+# SIGNIFICANCE OF SUFFRAGE TAB
+  output$suffrageText <- renderUI({
+    HTML('
+        <h3 style="text-align: center; font-weight: bold; text-decoration: underline;">The Significance of Suffrage</h3>
+          <p style="text-indent: 20px;">While only a component of this project, below is more analysis of suffrage that must be kept in account when looking at empowerment over time.</p>
+        <h4 style="font-weight: bold; font-style: italic;">Peak Decades</h4>
+          <p style="text-indent: 20px;">The 40s and 50s show the highest number of first suffrage instances. This can be attributed to the period of decolonization and the emergence of the majority of African and Asian nation-states. The increase of the 20s represents the suffrage movements of the “West” while the spike in the 90s represents the break up of the Soviet Union and Yugoslavia. It is interesting how regional changes, more specifically nation-building, can be tracked through suffrage. This also can be drawn into the Empowerment Periods with some of the highest decades of first suffrage tracking along with the empowerment category breaks.</p>
+    ')
+  })
+  output$decadesuffrageOutput <- renderPlot({       
+    first_voting_instances <- combined %>%
+    filter(voting == 1) %>%
+    group_by(region) %>%
+    summarize(first_vote_year = min(year)) %>%
+    ungroup()
+  first_voting_instances$decade <- floor(first_voting_instances$first_vote_year / 10) * 10
+  
+  votes_by_decade <- first_voting_instances %>%
+    count(decade)
+  # GRAPH
+  ggplot(votes_by_decade, aes(x = as.factor(decade), y = n)) +
+    geom_bar(stat = "identity", fill = "#806E88") +
+    coord_flip() +
+    theme_minimal(base_size = 14) +
+    theme(
+      legend.position = "none",
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      axis.title.x = element_text(size = 16, margin = margin(t = 20)),
+      axis.title.y = element_text(size = 16, margin = margin(r = 20))
+    ) +
+    labs(title = "First Instances of Women's Suffrage by Decade",
+         x = "Decade",
+         y = "Countries") +
+    scale_x_discrete(labels = function(x) paste0(x, "s"))})
+  output$suffragecontinuedText <- renderUI({
+    HTML('
+        <h4 style="font-weight: bold; font-style: italic;">Continental Divide</h4>
+          <p style="text-indent: 20px;">Suffrage across continents can be skewed due to the combination of North and South America into the Americas. However, the Global North divide can still be seen with Europe quickly reaching suffrage for over half of its countries by the 1940s while the Americas, Asia, and Africa did not see steady growth until this time. The rise and fall of Africa and the Americas from the 60s into the 80s represent the regime shifts and coups that plagued these areas during the period. This representation of the voting rate over time provides the best representation of the voting fluctuations. Further analysis could be drawn from researching significant events in these continents for that period.</p>
+    ')
+  })
+  output$continentsuffrageOutput <- renderPlot({        
+    max_voting <- max(grouped_vote$voting, na.rm = TRUE)
+    
+    #GRAPH
+    ggplot(grouped_vote, aes(x = year, y = voting, group = continent, color = continent)) +
+      geom_line(size = 1.2) + # Increase line thickness
+      geom_point() + # Add data points
+      annotate("rect", xmin = 1900, xmax = 1955, ymin = -Inf, ymax = Inf, fill = "gray", alpha = 0.2) +
+      annotate("rect", xmin = 1956, xmax = 1978, ymin = -Inf, ymax = Inf, fill = "gray", alpha = 0.2) +
+      annotate("rect", xmin = 1979, xmax = 2000, ymin = -Inf, ymax = Inf, fill = "gray", alpha = 0.2) +
+      annotate("text", x = 1927.5, y = max_voting * 1.1, label = "Nascent", size = 5, hjust = 0.5, color = "black") +
+      annotate("text", x = 1967, y = max_voting * 1.1, label = "Developing", size = 5, hjust = 0.5, color = "black") +
+      annotate("text", x = 1989.5, y = max_voting * 1.1, label = "Established", size = 5, hjust = 0.5, color = "black") +
+      scale_x_continuous(breaks = seq(min(grouped_vote$year), max(grouped_vote$year), by = 10)) +
+      scale_color_manual(values = c("Africa" = "#A7C7E7", 
+                                    "Americas" = "#E7A7A7", 
+                                    "Asia" = "#A7E7D6", 
+                                    "Europe" = "#D6A7E7",
+                                    "Oceania" = "#E7D5A7", 
+                                    "NA" = "#D3D3D3")) +
+      labs(title = "Average Voting Rate by Continent Over Time",
+           x = "Year",
+           y = "Average Voting Rate") +
+      theme_minimal() +
+      theme(legend.position = "right") +
+      ylim(0, max_voting * 1.2)})
+  
+# FURTHER RESERACH TAB
   output$furtherText <- renderUI({
     HTML('
         <h3 style="text-align: center; font-weight: bold; text-decoration: underline;">Three Different Research Paths</h3>
