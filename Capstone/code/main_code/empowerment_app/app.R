@@ -6,12 +6,9 @@ library(readr)
 library(plotly)
 library(gridExtra)
 library(grid)
+library(cli)
 library(DT)
 library(rsconnect)
-
-rsconnect::setAccountInfo(name='abrodrigues',
-                          token='317B4725C85DD1BD8FF66948B6536F81',
-                          secret='PYGpSm7btfqROoUPhllWe0kLiQ0uW1FAT6DiWG8E')
 
 combined_map <- read_csv("combined_map.csv", show_col_types = FALSE)
 wemp100yr <- read_csv("wemp100yr.csv", show_col_types = FALSE)
@@ -668,3 +665,4 @@ server <- function(input, output, session) {
 
 # Run the application
 shinyApp(ui = ui, server = server)
+deployApp()
