@@ -10,11 +10,11 @@ library(cli)
 library(DT)
 library(rsconnect)
 
-combined_map <- read_csv("combined_map.csv", show_col_types = FALSE)
-wemp100yr <- read_csv("wemp100yr.csv", show_col_types = FALSE)
-grouped_vote <- read_csv("grouped_vote.csv", show_col_types = FALSE)
-grouped_wemp <- read_csv("grouped_wemp.csv", show_col_types = FALSE)
-combined <- read_csv("combined.csv", show_col_types = FALSE)
+combined_map <- readRDS("combined_map.rds")
+combined <- readRDS("combined.rds")
+wemp100yr <- readRDS("wemp100yr.rds")
+grouped_vote <- readRDS("grouped_vote.rds")
+grouped_wemp <- readRDS("grouped_wemp.rds")
 continent_choices <- c("Please select..." = "", unique(combined_map$continent[combined_map$continent != "NA"]))
 
 ui <- fluidPage(
@@ -319,7 +319,7 @@ server <- function(input, output, session) {
         "emerging" = "#f2b872", 
         "established" = "#957DAD"
       ), name = "Category") + theme_minimal(base_family = "Georgia")
-      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
     ggplotly(facetbar)
   })
   output$thresholdsText <- renderUI({
@@ -665,4 +665,3 @@ server <- function(input, output, session) {
 
 # Run the application
 shinyApp(ui = ui, server = server)
-deployApp()
