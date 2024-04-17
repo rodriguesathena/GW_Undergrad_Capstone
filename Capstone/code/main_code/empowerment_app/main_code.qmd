@@ -10,14 +10,19 @@ editor: visual
 library(readr)
 library(dplyr)
 library(tidyr)
+library(extrafont)
 library(ggplot2)
+library(grid)
 library(maps)
 library(plotly)
 library(tidyverse)
 library(gganimate)
 library(scales)
+library(Cairo)
+library(gridExtra)
 library(vdemdata)
 library(countrycode)
+loadfonts(device = "win")
 ```
 
 <!-- loading dataset -->
@@ -70,7 +75,9 @@ wemp100yr$categoryvalue <- as.numeric(ifelse(wemp100yr$wpei<=0.188, 1,
                                     ifelse(wemp100yr$wpei>=0.546, 4, 0)))))
 summary(wemp100yr)
 ```
+
 <!-- Correlation between indicators and categories --->
+
 ```{r}
 wemp100yr <- wemp100yr %>%
   mutate(wpei_category = case_when(
@@ -114,17 +121,21 @@ allbar <- ggplot(grouped_wemp, aes(x = year, y = count, fill = category)) + geom
     "developing" = "#3b5e8c", 
     "emerging" = "#f2b872", 
     "established" = "#957DAD"
-  )) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  )) + theme_minimal(base_family = "Garamond") + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 facetbar <- ggplot(grouped_wemp, aes(x = year, y = count, fill = category)) + geom_bar(stat='identity', position=position_dodge()) +   scale_fill_manual(values = c(
     "nascent" = "#f2ab9b", 
     "developing" = "#3b5e8c", 
     "emerging" = "#f2b872", 
     "established" = "#957DAD"
   )) + facet_wrap(.~category) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-allbar <- ggplotly(groupbar)
+allbarinter <- ggplotly(allbar)
 facetbar <- ggplotly(facetbar)
 allbar
 facetbar
+ggsave("periods.png", plot = allbar, device = "png", width = 10, height = 8, units = "in")
+```
+<!-- Threshold Analysis -->
+```{r warning=FALSE}
 #THRESHOLD CALCULATION
 category_summary <- wemp100yr %>%
   group_by(category, year) %>%
@@ -141,7 +152,14 @@ calculate_main_years_range <- function(threshold) {
     summarise(StartYear = min(year), EndYear = max(year), .groups = 'drop')
 }
 results <- lapply(thresholds, calculate_main_years_range)
-print(results)
+percent_labels <- paste0(thresholds * 100, "%")
+combined_results <- bind_rows(results, .id = "Threshold") %>%
+  mutate(Threshold = factor(Threshold, labels = percent_labels))
+table_plot <- gridExtra::tableGrob(combined_results)
+
+# Display the table plot in R (for verification)
+grid::grid.newpage()
+grid::grid.draw(table_plot)
 ```
 
 <!-- adding transition periods to dataset-->
@@ -244,7 +262,9 @@ Oceania <- filter(analysis_map, continent == "Oceania")
 #   slice_head(n = 10)
 # head(top_ten_region)
 ```
+
 <!-- Voting and WPEI Decade Analysis -->
+
 ```{r}
 combined$year <- as.integer(combined$year)
 combined$decade <- floor(combined$year / 10) * 10
@@ -305,7 +325,9 @@ colorgraph <- ggplot(grouped_combined, aes(x = as.factor(decade), y = count, fil
 intercolor <- ggplotly(colorgraph)
 intercolor
 ```
+
 <!-- voting analysis -->
+
 ```{r, warning = FALSE}
 grouped_vote <- voting100yr %>%
   group_by(year, continent) %>%
@@ -314,16 +336,22 @@ grouped_vote <- voting100yr %>%
 grouped_vote <- drop_na(grouped_vote)
 max_voting <- max(grouped_vote$voting, na.rm = TRUE)
 
-# Plotting the trends for Voting with adjusted labels
+nascent_grob <- textGrob("Nascent", x = unit(0.25, "npc"), y = unit(1.1, "npc"), 
+                         gp = gpar(col = "black", fontsize = 12, fontfamily = "Garamond"))
+developing_grob <- textGrob("Developing", x = unit(0.5, "npc"), y = unit(1.1, "npc"), 
+                            gp = gpar(col = "black", fontsize = 12, fontfamily = "Garamond"))
+established_grob <- textGrob("Established", x = unit(0.75, "npc"), y = unit(1.1, "npc"), 
+                             gp = gpar(col = "black", fontsize = 12, fontfamily = "Garamond"))
+
 continent_vote <- ggplot(grouped_vote, aes(x = year, y = voting, group = continent, color = continent)) +
-  geom_line(size = 1.2) + # Increase line thickness
-  geom_point() + # Add data points
+  geom_line(size = 1.2) +  
+  geom_point() +  
   annotate("rect", xmin = 1900, xmax = 1955, ymin = -Inf, ymax = Inf, fill = "gray", alpha = 0.2) +
   annotate("rect", xmin = 1956, xmax = 1978, ymin = -Inf, ymax = Inf, fill = "gray", alpha = 0.2) +
   annotate("rect", xmin = 1979, xmax = 2000, ymin = -Inf, ymax = Inf, fill = "gray", alpha = 0.2) +
-  annotate("text", x = 1927.5, y = max_voting * 1.1, label = "Nascent", size = 5, hjust = 0.5, color = "black") +
-  annotate("text", x = 1967, y = max_voting * 1.1, label = "Developing", size = 5, hjust = 0.5, color = "black") +
-  annotate("text", x = 1989.5, y = max_voting * 1.1, label = "Established", size = 5, hjust = 0.5, color = "black") +
+  annotation_custom(nascent_grob, xmin = 1900, xmax = 1955, ymin = 100, ymax = 120) + 
+  annotation_custom(developing_grob, xmin = 1956, xmax = 1978, ymin = 100, ymax = 120) +
+  annotation_custom(established_grob, xmin = 1979, xmax = 2000, ymin = 100, ymax = 120) +
   scale_x_continuous(breaks = seq(min(grouped_vote$year), max(grouped_vote$year), by = 10)) +
   scale_color_manual(values = c("Africa" = "#A7C7E7", 
                                 "Americas" = "#E7A7A7", 
@@ -334,48 +362,75 @@ continent_vote <- ggplot(grouped_vote, aes(x = year, y = voting, group = contine
   labs(title = "Average Voting Rate by Continent Over Time",
        x = "Year",
        y = "Average Voting Rate") +
-  theme_minimal() +
-  theme(legend.position = "right") + # Add the legend back
-  ylim(0, max_voting * 1.2)
+  theme_minimal(base_family = "Garamond") +
+  theme(text = element_text(family = "Garamond"),
+        legend.position = "right") +
+  coord_cartesian(ylim = c(0, 150)) 
 continent_vote
+#ggsave("continent_vote.png", plot = continent_vote, device = "png", width = 10, height = 8, units = "in")
 ```
+
 <!-- maps -->
 
 ```{r}
-allworld <- ggplot() +
-  geom_polygon(data = combined_map %>% filter(year == 1930), 
+allworld20 <- ggplot() +
+  geom_polygon(data = combined_map %>% filter(year == 1920), 
                aes(x = long, y = lat, group = group, fill = category)) +
-  geom_polygon(data = combined_map %>% filter(year == 1930, voting == 1), 
+  scale_fill_manual(values = c("nascent" = "#f2ab9b", "developing" = "#3b5e8c", "emerging" = "#f2b872", "established" = "#957DAD")) +
+  geom_polygon(data = combined_map %>% filter(year == 1920, voting == 1), 
                aes(x = long, y = lat, group = group, color = "Voting Rights"), 
                fill = NA, size = 0.25) +
-  geom_polygon(data = combined_map %>% filter(year == 1930, voting == 0), 
+  geom_polygon(data = combined_map %>% filter(year == 1920, voting == 0), 
                aes(x = long, y = lat, group = group, color = "No Voting Rights"), 
                fill = NA, size = 0.25, linetype = "dashed") +
   scale_color_manual(name = "Voting Rights",
                      values = c("Voting Rights" = "black", "No Voting Rights" = "red"),
                      labels = c("Voting Rights", "No Voting Rights"),
                      guide = guide_legend(override.aes = list(linetype = c("solid", "dashed"), size = 1))) +
-  theme_classic() +
-  labs(title = "Empowerment Category and Voting Rights in 1930", fill = "Category") +
+  theme_void(base_family = "Garamond") +
+  labs(title = "Empowerment and Voting Rights in 1920", fill = "Category") +
   guides(fill = guide_legend(title = "Category"),
          color = guide_legend(title = "Voting Rights Status"))
-allworld
+allworld20
+ggsave("1920world.png", plot = allworld20, device = "png", width = 10, height = 8, units = "in")
 
-allcontinents <- ggplot() +
-  geom_polygon(data = combined_map %>% filter(year == 1930, continent == "Europe"), 
+allworld90 <- ggplot() +
+  geom_polygon(data = combined_map %>% filter(year == 1990), 
                aes(x = long, y = lat, group = group, fill = category)) +
-  geom_polygon(data = combined_map %>% filter(year == 1930, continent == "Europe", voting == 1), 
+  scale_fill_manual(values = c("nascent" = "#f2ab9b", "developing" = "#3b5e8c", "emerging" = "#f2b872", "established" = "#957DAD")) +
+  geom_polygon(data = combined_map %>% filter(year == 1990, voting == 1), 
                aes(x = long, y = lat, group = group, color = "Voting Rights"), 
                fill = NA, size = 0.25) +
-  geom_polygon(data = combined_map %>% filter(year == 1930, voting == 0, continent == "Europe"), 
+  geom_polygon(data = combined_map %>% filter(year == 1990, voting == 0), 
                aes(x = long, y = lat, group = group, color = "No Voting Rights"), 
                fill = NA, size = 0.25, linetype = "dashed") +
   scale_color_manual(name = "Voting Rights",
                      values = c("Voting Rights" = "black", "No Voting Rights" = "red"),
                      labels = c("Voting Rights", "No Voting Rights"),
                      guide = guide_legend(override.aes = list(linetype = c("solid", "dashed"), size = 1))) +
+  theme_void(base_family = "Garamond") +
+  labs(title = "Empowerment and Voting Rights in 1990", fill = "Category") +
+  guides(fill = guide_legend(title = "Category"),
+         color = guide_legend(title = "Voting Rights Status"))
+allworld90
+ggsave("1990.world.png", plot = allworld90, device = "png", width = 10, height = 8, units = "in")
+
+allcontinents <- ggplot() +
+  geom_polygon(data = combined_map %>% filter(year == 1920, continent == "Europe"), 
+               aes(x = long, y = lat, group = group, fill = category)) +
+  geom_polygon(data = combined_map %>% filter(year == 1920, continent == "Europe", voting == 1), 
+               aes(x = long, y = lat, group = group, color = "Voting Rights"), 
+               fill = NA, size = 0.25) +
+  geom_polygon(data = combined_map %>% filter(year == 1920, voting == 0, continent == "Europe"), 
+               aes(x = long, y = lat, group = group, color = "No Voting Rights"), 
+               fill = NA, size = 0.25, linetype = "dashed") +
+  scale_fill_manual(values = c("nascent" = "#f2ab9b", "developing" = "#3b5e8c", "emerging" = "#f2b872", "established" = "#957DAD"))+
+  scale_color_manual(name = "Voting Rights",
+                     values = c("Voting Rights" = "black", "No Voting Rights" = "red"),
+                     labels = c("Voting Rights", "No Voting Rights"),
+                     guide = guide_legend(override.aes = list(linetype = c("solid", "dashed"), size = 1))) +
   theme_classic() +
-  labs(title = "Empowerment Category and Voting Rights in 1930", fill = "Category") +
+  labs(title = "Empowerment and Voting Rights in 1920", fill = "Category") +
   guides(fill = guide_legend(title = "Category"),
          color = guide_legend(title = "Voting Rights Status"))
 allcontinents
@@ -409,6 +464,7 @@ empowermentcountry <- ggplot(data = combined_map %>% filter(year == 1912, region
 empowermentcountry
 
 ```
+
 <!-- animated wpei gif -->
 
 ```{r}
@@ -456,16 +512,17 @@ participation_map <- function(year_data) {
     theme_void()
 }
 
-
-saveGIF({
-  for(year_data in years_data) {
-    print(participation_map(year_data))
-  }
-}, movie.name = "participation_animation.gif", interval = 2, ani.width = 800, ani.height = 600)
+# 
+# saveGIF({
+#   for(year_data in years_data) {
+#     print(participation_map(year_data))
+#   }
+# }, movie.name = "participation_animation.gif", interval = 2, ani.width = 800, ani.height = 600)
 
 ```
 
 <!-- animated empowerment levels gif -->
+
 <!-- creating a csv file of cleaned data -->
 
 ```{r}
@@ -477,4 +534,3 @@ saveGIF({
 #write_csv(grouped_vote, 'grouped_vote.csv')
 #write_csv(grouped_wemp, 'grouped_wemp.csv')
 ```
-
