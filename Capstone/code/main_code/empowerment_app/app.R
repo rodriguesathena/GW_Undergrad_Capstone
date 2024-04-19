@@ -6,9 +6,7 @@ library(readr)
 library(plotly)
 library(gridExtra)
 library(grid)
-library(cli)
 library(DT)
-library(rsconnect)
 
 combined_map <- readRDS("combined_map.rds")
 combined <- readRDS("combined.rds")
@@ -663,5 +661,4 @@ server <- function(input, output, session) {
   )
 }
 
-# Run the application
 shinyApp(ui = ui, server = server)

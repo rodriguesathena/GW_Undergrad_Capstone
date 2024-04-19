@@ -132,7 +132,7 @@ allbarinter <- ggplotly(allbar)
 facetbar <- ggplotly(facetbar)
 allbar
 facetbar
-ggsave("periods.png", plot = allbar, device = "png", width = 10, height = 8, units = "in")
+#ggsave("periods.png", plot = allbar, device = "png", width = 10, height = 8, units = "in")
 ```
 
 <!-- Threshold Analysis -->
@@ -395,7 +395,7 @@ allworld20 <- ggplot() +
   guides(fill = guide_legend(title = "Category"),
          color = guide_legend(title = "Voting Rights Status"))
 allworld20
-ggsave("1920world.png", plot = allworld20, device = "png", width = 10, height = 8, units = "in")
+#ggsave("1920world.png", plot = allworld20, device = "png", width = 10, height = 8, units = "in")
 
 allworld90 <- ggplot() +
   geom_polygon(data = combined_map %>% filter(year == 1990), 
@@ -416,7 +416,7 @@ allworld90 <- ggplot() +
   guides(fill = guide_legend(title = "Category"),
          color = guide_legend(title = "Voting Rights Status"))
 allworld90
-ggsave("1990.world.png", plot = allworld90, device = "png", width = 10, height = 8, units = "in")
+#ggsave("1990world.png", plot = allworld90, device = "png", width = 10, height = 8, units = "in")
 
 allcontinents <- ggplot() +
   geom_polygon(data = combined_map %>% filter(year == 1920, continent == "Europe"), 
@@ -514,7 +514,6 @@ participation_map <- function(year_data) {
     labs(title = paste("Year:", unique(year_data$year))) +
     theme_void()
 }
-
 # 
 # saveGIF({
 #   for(year_data in years_data) {
@@ -523,16 +522,64 @@ participation_map <- function(year_data) {
 # }, movie.name = "participation_animation.gif", interval = 2, ani.width = 800, ani.height = 600)
 
 ```
+<!-- categories gif -->
+```{r}
+library(ggplot2)
+library(dplyr)
+library(animation)
 
-<!-- animated empowerment levels gif -->
+
+decades <- list(
+  all1900 = filter(combined_map, year == 1900),
+  all1910 = filter(combined_map, year == 1910),
+  all1920 = filter(combined_map, year == 1920),
+  all1930 = filter(combined_map, year == 1930),
+  all1940 = filter(combined_map, year == 1940),
+  all1950 = filter(combined_map, year == 1950),
+  all1960 = filter(combined_map, year == 1960),
+  all1970 = filter(combined_map, year == 1970),
+  all1980 = filter(combined_map, year == 1980),
+  all1990 = filter(combined_map, year == 1990),
+  all2000 = filter(combined_map, year == 2000)
+  )
+
+# Function to create plots for each year
+alldecades <- function(decades) {
+  basemap +
+    geom_polygon(data = decades, aes(x = long, y = lat, fill = category, group = group)) +
+    scale_fill_manual(values = c("nascent" = "#f2ab9b", "developing" = "#3b5e8c", "emerging" = "#f2b872", "established" = "#957DAD")) +
+    labs(title = paste("Empowerment Categories in", unique(decades$year))) +
+    theme_void(base_family = "Garamond")
+}
+
+
+# # Run animation
+# saveGIF({
+#   for(decades in decades) {
+#     print(alldecades(decades))
+#   }
+# }, movie.name = "worlddecades.gif", interval = 2, ani.width = 800, ani.height = 600)
+
+#creating qr code
+library(qrcode)
+gif_url <- "https://drive.google.com/file/d/1H0vDrJKltHdpeItN-dcCXcNFPk8TNS9I/view?usp=drive_link"
+actualcode <- qr_code(gif_url)
+plot(actualcode)
+png("decadescode")
+plot(actualcode)
+dev.off()
+```
 
 <!-- creating a csv file of cleaned data -->
 
 ```{r}
-saveRDS(wemp100yr, 'wemp100yr.rds')
-saveRDS(voting100yr, 'voting100yr.rds')
-saveRDS(combined, 'combined.rds')
-saveRDS(grouped_vote, 'grouped_vote.rds')
-saveRDS(grouped_wemp, 'grouped_wemp.rds')
-saveRDS(combined_map, "combined_map.rds")
+# saveRDS(wemp100yr, 'wemp100yr.rds')
+# saveRDS(voting100yr, 'voting100yr.rds')
+# saveRDS(combined, 'combined.rds')
+# saveRDS(grouped_vote, 'grouped_vote.rds')
+# saveRDS(grouped_wemp, 'grouped_wemp.rds')
+# saveRDS(combined_map, "combined_map.rds")
+# write_csv(wemp100yr, 'wemp100yr.csv')
+# write_csv(voting100yr, 'voting100yr.csv')
+# write_csv(combined, 'combined.csv')
 ```

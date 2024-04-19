@@ -94,4 +94,3 @@ basemap + geom_map(data = wemp1975, map = wemp1975, aes(fill = wpei, map_id = re
 #2000 map
 basemap + geom_map(data = wemp2000, map = wemp2000, aes(fill = wpei, map_id = region))
 ```
-
