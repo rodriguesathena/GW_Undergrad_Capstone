@@ -47,9 +47,6 @@ ui <- fluidPage(
     "Tracking Women's Empowerment",
     tabPanel("Overview",
              tabsetPanel(type = "tabs",
-                         tabPanel("Background", 
-                                  uiOutput("infoText")
-                         ),
                          tabPanel("Women's Political Empowerment Index", 
                                   uiOutput("empowermentInfoText"),
                                   uiOutput("empowermentInfoImg"),
@@ -86,6 +83,9 @@ ui <- fluidPage(
                          ),
                          tabPanel("Further Research", 
                                   uiOutput("furtherText")
+                         ),
+                         tabPanel("Background", 
+                                  uiOutput("infoText")
                          )
              )
     ),
@@ -252,22 +252,22 @@ server <- function(input, output, session) {
         <h4 style="font-weight: bold; font-style: italic;">Determined Categories</h4>
             <table class="centered-table">
             <tr>
-                <th colspan="2" style="text-align: center;"> Category Range</th>
+                <th colspan="2" style="text-align: center; background-color: #DAA520;"> Category Range</th>
             </tr>
             <tr>
-                <td>Nascent</td>
+                <td style = "background-color: #DAA520;">Nascent</td>
                 <td>WPEI < 0.188</td>
             </tr>
             <tr>
-                <td>Emerging</td>
+                <td style = "background-color: #DAA520;">Emerging</td>
                 <td>0.188 < WPEI < 0.336</td>
             </tr>
             <tr>
-                <td>Developing</td>
+                <td style = "background-color: #DAA520;">Developing</td>
                 <td>0.336 < WPEI < 0.546</td>
             </tr>
             <tr>
-                <td>Established</td>
+                <td style = "background-color: #DAA520;">Established</td>
                 <td>WPEI > 0.546</td>
             </tr>
             </table>
@@ -275,31 +275,31 @@ server <- function(input, output, session) {
             <p style="text-indent: 20px;">Once the overall Index was broken down into these categories, more information on the relationship and impact of the sub-indicators could be found Correlation tests for a combination of the sub-indicators across the WPEI categories were performed with the results below.</p>
               <table class="centered-table">
               <tr>
-                <th colspan="1" style="text-align: center;">Category</th>
-                <th colspan="1" style="text-align: center;">Society&Liberties</th>
-                <th colspan="1" style="text-align: center;">Society&Participation</th>
-                <th colspan="1" style="text-align: center;">Liberties&Participation</th>
+                <th colspan="1" style="text-align: center; background-color: #DAA520;">Category</th>
+                <th colspan="1" style="text-align: center; background-color: #DAA520;">Society&Liberties</th>
+                <th colspan="1" style="text-align: center; background-color: #DAA520;">Society&Participation</th>
+                <th colspan="1" style="text-align: center; background-color: #DAA520;">Liberties&Participation</th>
               </tr>
               <tr>
-                <td>Nascent</td>
+                <td style = "background-color: #DAA520;">Nascent</td>
                 <td>-0.07942348</td>
                 <td>0.05531654</td>
                 <td>-0.1336073</td>
               </tr>
               <tr>
-                <td>Emerging</td>
+                <td style = "background-color: #DAA520;">Emerging</td>
                 <td>-0.22664845</td>
                 <td>-0.10028010</td>
                 <td>-0.6189087</td>
               </tr>
               <tr>
-                <td>Developing</td>
+                <td style = "background-color: #DAA520;">Developing</td>
                 <td>-0.7360711</td>
                 <td>-0.09743562</td>
                 <td>-0.6376153</td>
               </tr>
               <tr>
-                <td>Established</td>
+                <td style = "background-color: #DAA520;">Established</td>
                 <td>0.43980447</td>
                 <td>0.34631430</td>
                 <td>-0.1018835</td>
@@ -399,18 +399,18 @@ server <- function(input, output, session) {
       <p style="text-indent: 20px;">Both methods showed the emerging category restrained with little majority compared to the other categories. With the threshold graphs, one can see the significant overlaps of the emerging category into the nascent and developing categories. Because of this, it was decided to condense the emerging category for the determination of Empowerment Periods resulting in the previously desired three-period analysis. The emerging period was still kept for the other areas of this project as the three quantile distributions significantly weekend the overall category breakdown. With this condensation, the Empowerment Periods were determined.</p>
             <table class="centered-table">
             <tr>
-                <th colspan="2" style="text-align: center;"> Category Years</th>
+                <th colspan="2" style="text-align: center; background-color: #DAA520;"> Category Years</th>
             </tr>
             <tr>
-                <td>Nascent</td>
+                <td style = "background-color: #DAA520;">Nascent</td>
                 <td>1900 - 1955</td>
             </tr>
             <tr>
-                <td>Developing</td>
+                <td style = "background-color: #DAA520;">Developing</td>
                 <td>1956 - 1978</td>
             </tr>
             <tr>
-                <td>Established</td>
+                <td style = "background-color: #DAA520;">Established</td>
                 <td>1979 - 2000</td>
             </tr>
             </table> 
