@@ -127,12 +127,12 @@ facetbar <- ggplot(grouped_wemp, aes(x = year, y = count, fill = category)) + ge
     "developing" = "#3b5e8c", 
     "emerging" = "#f2b872", 
     "established" = "#957DAD"
-  )) + facet_wrap(.~category) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  )) + facet_wrap(.~category) + theme_minimal(base_family = "Garamond") + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 allbarinter <- ggplotly(allbar)
-facetbar <- ggplotly(facetbar)
+facetbarinter <- ggplotly(facetbar)
 allbar
 facetbar
-#ggsave("periods.png", plot = allbar, device = "png", width = 10, height = 8, units = "in")
+#ggsave("periodsfacet.png", plot = facetbar, device = "png", width = 10, height = 8, units = "in")
 ```
 
 <!-- Threshold Analysis -->
@@ -283,7 +283,7 @@ votes_by_decade <- first_voting_instances %>%
   dplyr::count(decade)
 print(votes_by_decade)
 #GRAPH
-ggplot(votes_by_decade, aes(x = as.factor(decade), y = n)) +
+decadevote <- ggplot(votes_by_decade, aes(x = as.factor(decade), y = n)) +
   geom_bar(stat = "identity", fill = "#806E88") +
   coord_flip() +
   theme_minimal(base_size = 14) +
@@ -292,11 +292,12 @@ ggplot(votes_by_decade, aes(x = as.factor(decade), y = n)) +
     axis.text.x = element_text(angle = 45, hjust = 1),
     axis.title.x = element_text(size = 16, margin = margin(t = 20)),
     axis.title.y = element_text(size = 16, margin = margin(r = 20))
-  ) +
+  ) + theme_minimal(base_family = "Garamond") +
   labs(title = "First Instances of Women's Suffrage by Decade",
        x = "Decade",
        y = "Countries") +
   scale_x_discrete(labels = function(x) paste0(x, "s"))
+#ggsave("decadevote.png", plot = decadevote, device = "png", width = 10, height = 8, units = "in")
 #LEVELS
 grouped_combined <- combined %>%
   group_by(decade, category) %>%
@@ -313,7 +314,7 @@ colorgraph <- ggplot(grouped_combined, aes(x = as.factor(decade), y = count, fil
     axis.text.x = element_text(angle = 45, hjust = 1),
     axis.title.x = element_text(size = 16, margin = margin(t = 20)),
     axis.title.y = element_text(size = 16, margin = margin(r = 20))
-  ) +
+  ) + theme_minimal(base_family = "Garamond") +
   scale_fill_manual(values = c(
     "nascent" = "#f2ab9b", 
     "developing" = "#3b5e8c", 
@@ -561,13 +562,23 @@ alldecades <- function(decades) {
 # }, movie.name = "worlddecades.gif", interval = 2, ani.width = 800, ani.height = 600)
 
 #creating qr code
-library(qrcode)
-gif_url <- "https://drive.google.com/file/d/1H0vDrJKltHdpeItN-dcCXcNFPk8TNS9I/view?usp=drive_link"
-actualcode <- qr_code(gif_url)
-plot(actualcode)
-png("decadescode")
-plot(actualcode)
-dev.off()
+# library(qrcode)
+# gif_url <- "https://drive.google.com/file/d/1H0vDrJKltHdpeItN-dcCXcNFPk8TNS9I/view?usp=drive_link"
+# actualcode <- qr_code(gif_url)
+# plot(actualcode)
+# png("decadescode")
+# plot(actualcode)
+# dev.off()
+```
+<!-- wpei animation -->
+```{r}
+alldecades <- function(decades) {
+  basemap +
+    geom_polygon(data = decades, aes(x = long, y = lat, fill = wpei, group = group)) +
+    scale_fill_manual(values = c("nascent" = "#f2ab9b", "developing" = "#3b5e8c", "emerging" = "#f2b872", "established" = "#957DAD")) +
+    labs(title = paste("Empowerment Categories in", unique(decades$year))) +
+    theme_void(base_family = "Garamond")
+}
 ```
 
 <!-- creating a csv file of cleaned data -->

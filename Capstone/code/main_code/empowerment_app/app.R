@@ -50,6 +50,16 @@ ui <- fluidPage(
                          tabPanel("Background", 
                                   uiOutput("infoText")
                          ),
+                         tabPanel("Women's Political Empowerment Index", 
+                                  uiOutput("empowermentInfoText"),
+                                  uiOutput("empowermentInfoImg"),
+                                  uiOutput("libertiesInfoText"),
+                                  uiOutput("libertiesInfoImg"),
+                                  uiOutput("societyInfoText"),
+                                  uiOutput("societyInfoImg"),
+                                  uiOutput("participationInfoText"),
+                                  uiOutput("participationInfoImg")
+                         ),
                          tabPanel("Calculating Empowerment Categories", 
                                   uiOutput("categoriesText")
                          ),
@@ -187,25 +197,52 @@ server <- function(input, output, session) {
     ')
   })
   # WPEI TAB
-  output$wpeiText <- renderUI({     
+  output$empowermentInfoText <- renderUI({
     HTML('
-        <h3 style="text-align: center; font-weight: bold; text-decoration: underline;">Women&#39;s Political Empowerment Index</h3>
-            <p style="text-indent: 20px;">Women&#39;s Political Empowerment is defined as <q>a process of increasing capacity for women, leading to greater choice, agency, and participation in societal decision-making</q></p>
-        <h4 style="font-weight: bold; font-style: italic;">Academic Research</h4>
-          <p style="text-indent: 20px;">Created by Aksel Sundstron, Pamela Paxton, Yi-Ting Wang, and Staffan I. Lindberg for the V-Dem Institute, the Women&#39;s Political Empowerment Index combines information from three calculated indices about women&#39;s political and civil society progress and combines them into one index that measure&#39;s overall political empowerment. With data spanning over 100 years (1900-2012), an index of three varieties, and over 170 countries, this index provides the most comprehensive and best-covering measure of empowerment. This Index takes into account newly formed countries, changing central concepts of women&#39;s rights, and gives a better representation of the Global South. For further information on the creation of this index and its sub-dimensions, the group&#39;s paper <q>Women&#39;s Political Empowerment: A New Global Index, 1900-2012</q> can be referenced.</p>
-          <img src="WPEI_animation.gif" style="display: block; margin: auto;">
-        <h4 style="font-weight: bold; font-style: italic;">The Three Indices</h4>
-          <p style="text-indent: 20px;">The WPEI is created by averaging the three indices listed below. Each of these indices refers to one of the three indicators (Choice, Agency, and Participation)  mentioned in the definition of Women&#39;s Political Empowerment representing a holistic representation for both Western and Nonwestern contexts.</p>
-          <h5 style="font-weight: bold; font-style: italic;text-indent: 20px;">	Women&#39;s Civil Liberties Index</h5>
-            <p style="text-indent: 40px;"> Takes into Account: Freedom of domestic movement for women, Freedom from forced labor for women, Property rights for women, Access to justice for women</p>
-            <img src="liberties_animation.gif" style="display: block; margin: auto;">
-          <h5 style="font-weight: bold; font-style: italic;text-indent: 20px;">Women&#39;s Civil Society Participation Index</h5>
-            <p style="text-indent: 40px;"> Takes into Account: Freedom of discussion for women, Women&#39;s Participation in Civil Service Organizations, Percentage of female journalists</p>
-            <img src="society_animation.gif" style="display: block; margin: auto;">
-         <h5 style="font-weight: bold; font-style: italic;text-indent: 20px;">	Women&#39;s Political Participation Index</h5>
-            <p style="text-indent: 40px;">Takes into Account: Power distribution by gender, Political position representation, Presence of women in legislature</p>
-            <img src="participation_animation.gif" style="display: block; margin: auto;">
-    ') })
+    <h3 style="text-align: center; font-weight: bold; text-decoration: underline;">Women&#39;s Political Empowerment Index</h3>
+    <p style="text-indent: 20px;">Women&#39;s Political Empowerment is defined as <q>a process of increasing capacity for women, leading to greater choice, agency, and participation in societal decision-making</q></p>
+    <h4 style="font-weight: bold; font-style: italic;">Academic Research</h4>
+    <p style="text-indent: 20px;">Created by Aksel Sundstron, Pamela Paxton, Yi-Ting Wang, and Staffan I. Lindberg for the V-Dem Institute, the Women&#39;s Political Empowerment Index combines information from three calculated indices about women&#39;s political and civil society progress and combines them into one index that measure&#39;s overall political empowerment. With data spanning over 100 years (1900-2012), an index of three varieties, and over 170 countries, this index provides the most comprehensive and best-covering measure of empowerment. This Index takes into account newly formed countries, changing central concepts of women&#39;s rights, and gives a better representation of the Global South. For further information on the creation of this index and its sub-dimensions, the group&#39;s paper <q>Women&#39;s Political Empowerment: A New Global Index, 1900-2012</q> can be referenced.</p>
+  ')
+  })
+  # WPEI TAB - 
+  output$empowermentInfoImg <- renderUI({
+    tags$img(src = "animation_wpei.gif", style = "display: block; margin: auto;")
+  })
+  
+  output$libertiesInfoText <- renderUI({
+    HTML('
+    <h4 style="font-weight: bold; font-style: italic;">The Three Indices</h4>
+    <h5 style="font-weight: bold; font-style: italic;text-indent: 20px;">Women&#39;s Civil Liberties Index</h5>
+    <p style="text-indent: 40px;"> Takes into Account: Freedom of domestic movement for women, Freedom from forced labor for women, Property rights for women, Access to justice for women</p>
+  ')
+  })
+  
+  output$libertiesInfoImg <- renderUI({
+    tags$img(src = "liberties_animation.gif", style = "display: block; margin: auto;")
+  })
+  
+  output$societyInfoText <- renderUI({
+    HTML('
+    <h5 style="font-weight: bold; font-style: italic;text-indent: 20px;">Women&#39;s Civil Society Participation Index</h5>
+    <p style="text-indent: 40px;"> Takes into Account: Freedom of discussion for women, Women&#39;s Participation in Civil Service Organizations, Percentage of female journalists</p>
+  ')
+  })
+  
+  output$societyInfoImg <- renderUI({
+    tags$img(src = "society_animation.gif", style = "display: block; margin: auto;")
+  })
+  
+  output$participationInfoText <- renderUI({
+    HTML('
+    <h5 style="font-weight: bold; font-style: italic;text-indent: 20px;">Women&#39;s Political Participation Index</h5>
+    <p style="text-indent: 40px;">Takes into Account: Power distribution by gender, Political position representation, Presence of women in legislature</p>
+  ')
+  })
+  
+  output$participationInfoImg <- renderUI({
+    tags$img(src = "participation_animation.gif", style = "display: block; margin: auto;")
+  })
   # CALCULATING EMPOWERMENT CATEGORIES TAB
   output$categoriesText <- renderUI({
     HTML('
