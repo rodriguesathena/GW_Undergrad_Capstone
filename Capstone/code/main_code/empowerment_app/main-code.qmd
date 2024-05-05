@@ -379,25 +379,25 @@ allworld20
 #ggsave("1920world.png", plot = allworld20, device = "png", width = 10, height = 8, units = "in")
 
 allworld90 <- ggplot() +
-  geom_polygon(data = combined_map %>% filter(year == 1990), 
+  geom_polygon(data = combined_map %>% filter(year == 1920), 
                aes(x = long, y = lat, group = group, fill = category)) +
   scale_fill_manual(values = c("nascent" = "#f2ab9b", "developing" = "#3b5e8c", "emerging" = "#f2b872", "established" = "#957DAD")) +
-  geom_polygon(data = combined_map %>% filter(year == 1990, voting == 1), 
+  geom_polygon(data = combined_map %>% filter(year == 1920, voting == 1), 
                aes(x = long, y = lat, group = group, color = "Voting Rights"), 
                fill = NA, size = 0.25) +
-  geom_polygon(data = combined_map %>% filter(year == 1990, voting == 0), 
+  geom_polygon(data = combined_map %>% filter(year == 1920, voting == 0), 
                aes(x = long, y = lat, group = group, color = "No Voting Rights"), 
                fill = NA, size = 0.25, linetype = "dashed") +
   scale_color_manual(name = "Voting Rights",
                      values = c("Voting Rights" = "black", "No Voting Rights" = "red"),
-                     labels = c("Voting Rights", "No Voting Rights"),
+                     labels = c("No Voting Rights", " Voting Rights"),
                      guide = guide_legend(override.aes = list(linetype = c("solid", "dashed"), size = 1))) +
   theme_void(base_family = "Garamond") +
-  labs(title = "Empowerment and Voting Rights in 1990", fill = "Category") +
+  labs(title = "Empowerment and Voting Rights in 1920", fill = "Category") +
   guides(fill = guide_legend(title = "Category"),
          color = guide_legend(title = "Voting Rights Status"))
 allworld90
-#ggsave("1990world.png", plot = allworld90, device = "png", width = 10, height = 8, units = "in")
+#ggsave("1920world.png", plot = allworld90, device = "png", width = 10, height = 8, units = "in")
 
 allcontinents <- ggplot() +
   geom_polygon(data = combined_map %>% filter(year == 1920, continent == "Europe"), 
@@ -411,7 +411,7 @@ allcontinents <- ggplot() +
   scale_fill_manual(values = c("nascent" = "#f2ab9b", "developing" = "#3b5e8c", "emerging" = "#f2b872", "established" = "#957DAD"))+
   scale_color_manual(name = "Voting Rights",
                      values = c("Voting Rights" = "black", "No Voting Rights" = "red"),
-                     labels = c("Voting Rights", "No Voting Rights"),
+                     labels = c("No Voting Rights", " Voting Rights"),
                      guide = guide_legend(override.aes = list(linetype = c("solid", "dashed"), size = 1))) +
   theme_classic() +
   labs(title = "Empowerment and Voting Rights in 1920", fill = "Category") +
