@@ -503,7 +503,9 @@ participation_map <- function(year_data) {
 # }, movie.name = "participation_animation.gif", interval = 2, ani.width = 800, ani.height = 600)
 
 ```
+
 <!-- categories gif -->
+
 ```{r}
 library(ggplot2)
 library(dplyr)
@@ -549,7 +551,9 @@ alldecades <- function(decades) {
 # plot(actualcode)
 # dev.off()
 ```
+
 <!-- wpei animation -->
+
 ```{r}
 alldecades <- function(decades) {
   basemap +
@@ -573,5 +577,3 @@ alldecades <- function(decades) {
 # write_csv(voting100yr, 'voting100yr.csv')
 # write_csv(combined, 'combined.csv')
 ```
-
-
